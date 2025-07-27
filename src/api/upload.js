@@ -4,8 +4,28 @@ import crypto from "crypto";
 const UPLOAD_FOLDER = "uploads"
 
 export async function route_upload(ws, request) {
+    const { database, user } = request
     const id = crypto.randomUUID()
-    let stream = null
+
+    function deleteFile() {
+        if (fs.existsSync(`${UPLOAD_FOLDER}/${id}`)) {
+            fs.unlinkSync(`${UPLOAD_FOLDER}/${id}`)
+        }
+    }
+
+    if (!fs.existsSync(UPLOAD_FOLDER)) fs.mkdirSync(UPLOAD_FOLDER, { recursive: true })
+    deleteFile()
+
+    let stream = fs.createWriteStream(`${UPLOAD_FOLDER}/${id}`, { flags: "a" })
+
+    const upload_data = {
+        is_completed: false,
+        received_headers: false,
+        iv: null,
+        chunk_size: null,
+        size: null,
+        encrypted_filename: null,
+    }
 
     if (!request.isLogged) {
         ws.send(JSON.stringify({ success: false, message: "authentification_required" }))
@@ -30,19 +50,21 @@ export async function route_upload(ws, request) {
                 return
             }
             if (data.type === "start_upload") {
-                if (!data.filename || typeof data.filename !== "string" || /^(?! +$)(?![.]+$)[^\x00-\x1F\x7F\\\/:*?"<>|]{1,215}$/.test(data.filename) === false) {
+                if (!data.encrypted_filename || !data.iv || !data.chunk_size || !data.size) {
                     ws.send(JSON.stringify({ success: false, message: "invalid_request" }))
                     ws.close()
                     return
                 }
-                const source_filename = data.filename
-                if (!fs.existsSync(UPLOAD_FOLDER)) {
-                    fs.mkdirSync(UPLOAD_FOLDER, { recursive: true })
+                if (upload_data.received_headers) {
+                    ws.send(JSON.stringify({ success: false, message: "invalid_request" }))
+                    ws.close()
+                    return
                 }
-                if (fs.existsSync(`${UPLOAD_FOLDER}/${source_filename}`)) {
-                    fs.unlinkSync(`${UPLOAD_FOLDER}/${source_filename}`)
-                }
-                stream = fs.createWriteStream(`${UPLOAD_FOLDER}/${source_filename}`, { flags: "a" })
+                upload_data.received_headers = true
+                upload_data.iv = data.iv
+                upload_data.chunk_size = data.chunk_size
+                upload_data.size = data.size
+                upload_data.encrypted_filename = data.encrypted_filename
                 return
             } else if (data.type === "end_upload") {
                 if (stream === null) {
@@ -51,7 +73,7 @@ export async function route_upload(ws, request) {
                     return
                 }
                 stream.end(() => {
-                    ws.send(JSON.stringify({ success: true, message: "file_uploaded" }))
+                    upload_data.is_completed = true
                     ws.close()
                 })
                 return
@@ -66,9 +88,30 @@ export async function route_upload(ws, request) {
             if (error) {
                 ws.send(JSON.stringify({ success: false, message: "internal_error" }))
                 ws.close()
-            } else {
-                ws.send(JSON.stringify({ success: true, message: "chunk_received" }))
             }
         })
+    })
+    ws.addEventListener("close", async () => {
+        if (!upload_data.is_completed) {
+            if (stream !== null && !stream.destroyed) {
+                stream.close(deleteFile)
+            } else {
+                deleteFile()
+            }
+        } else {
+            await database.queryFirst("INSERT INTO files (id, iv, chunk_size, size, encrypted_filename, user_id) VALUES (?, ?, ?, ?, ?, ?)", [
+                id,
+                upload_data.iv,
+                upload_data.chunk_size,
+                upload_data.size,
+                upload_data.encrypted_filename,
+                user.id
+            ])
+
+            const file = await database.queryFirst("SELECT * FROM files WHERE id = ?", [id])
+            if (!file) {
+                deleteFile()
+            }
+        }
     })
 }

@@ -11,3 +11,14 @@ function hexToArrayBuffer(hex) {
 function bufferToHex(buffer) {
     return [...new Uint8Array(buffer)].map(b => b.toString(16).padStart(2, '0')).join('')
 }
+
+function incrementIV(iv) {
+    for (let i = iv.length - 1; i >= 0; i--) {
+        if (iv[i] < 255) {
+            iv[i]++;
+            break;
+        } else {
+            iv[i] = 0;
+        }
+    }
+}
