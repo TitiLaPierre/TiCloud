@@ -1,4 +1,3 @@
-import bcrypt from "bcrypt"
 import { randomUUID } from "crypto"
 
 export async function route_login(request, response) {
