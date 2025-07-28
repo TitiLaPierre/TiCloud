@@ -17,10 +17,10 @@ export async function route_register(request, response) {
     }
 
     const usernameChecks = [
-        { regex: /^[a-z\d]/i, reason: "not_starting_with_alphanumeric" },
-        { regex: /^.{3,}$/, reason: "too_short" },
-        { regex: /^.{0,24}$/, reason: "too_long" },
-        { regex: /^[a-z\d _-]+$/i, reason: "unauthorized_character" },
+        { regex: /^[a-z\d]/i, reason: "username_not_starting_with_alphanumeric" },
+        { regex: /^.{3,}$/, reason: "username_too_short" },
+        { regex: /^.{0,24}$/, reason: "username_too_long" },
+        { regex: /^[a-z\d _-]+$/i, reason: "username_unauthorized_character" },
     ]
 
     for (let check of usernameChecks) {
@@ -31,13 +31,13 @@ export async function route_register(request, response) {
     }
 
     const passwordChecks = [
-        { regex: /^.{6,}$/, reason: "too_short" },
-        { regex: /^.{0,100}$/, reason: "too_long" },
-        { regex: /[A-Z]/, reason: "require_uppercase" },
-        { regex: /[a-z]/, reason: "require_lowercase" },
-        { regex: /\d/, reason: "require_number" },
-        { regex: /[!@#$%^&*()_+\-=\[\]{};':"|,.<>\/?]/, reason: "require_special_character" },
-        { regex: /^[a-z\d!@#$%^&*()_+\-=\[\]{};':"|,.<>\/?]+$/i, reason: "unauthorized_character" },
+        { regex: /^.{6,}$/, reason: "password_too_short" },
+        { regex: /^.{0,100}$/, reason: "password_too_long" },
+        { regex: /[A-Z]/, reason: "password_require_uppercase" },
+        { regex: /[a-z]/, reason: "password_require_lowercase" },
+        { regex: /\d/, reason: "password_require_number" },
+        { regex: /[!@#$%^&*()_+\-=\[\]{};':"|,.<>\/?]/, reason: "password_require_special_character" },
+        { regex: /^[a-z\d!@#$%^&*()_+\-=\[\]{};':"|,.<>\/?]+$/i, reason: "password_unauthorized_character" },
     ]
 
     for (let check of passwordChecks) {

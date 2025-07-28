@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+    <base href="/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test</title>
     <link rel="icon" href="data:,">
-    <script src="public/utils.js" type="text/javascript"></script>
-    <script src="public/key.js" type="text/javascript"></script>
-    <script src="public/account.js" type="text/javascript" defer></script>
-    <script src="public/upload.js" type="text/javascript" defer></script>
+    <script src="public/js/utils.js" type="text/javascript"></script>
+    <script src="public/js/key.js" type="text/javascript"></script>
+    <script src="public/js/upload.js" type="text/javascript" defer></script>
+    <link rel="stylesheet" href="public/css/main.css" type="text/css">
 </head>
 <body style="display: flex; flex-direction: column; gap: 50px;">
     <div>
@@ -20,12 +21,13 @@
         <button id="file--button">Envoyer le fichier</button>
         <progress id="file--progress" value="0" max="100"></progress>
     </div>
-    <div style="background: lightgray;">
-        <input type="text" placeholder="Nom d'utilisateur" id="username--input" />
-        <input type="password" placeholder="Mot de passe" id="password--input" />
-        <button id="login--button">Se connecter</button>
-        <button id="register--button">Créer un compte</button>
-        <span id="login--tag"></span>
-    </div>
+    <button id="logout--button">Se déconnecter</button>
+<script type="text/javascript">
+    document.querySelector("#logout--button").addEventListener("click", async function() {
+        await fetch(URL+"/api/logout/", { method: "POST" })
+        localStorage.removeItem("encryption_key")
+        document.location.href = "/account/"
+    })
+</script>
 </body>
 </html>

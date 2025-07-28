@@ -99,13 +99,14 @@ export async function route_upload(ws, request) {
                 deleteFile()
             }
         } else {
-            await database.queryFirst("INSERT INTO files (id, iv, chunk_size, size, encrypted_filename, user_id) VALUES (?, ?, ?, ?, ?, ?)", [
+            await database.queryFirst("INSERT INTO files (id, iv, chunk_size, size, encrypted_filename, user_id, creation_date) VALUES (?, ?, ?, ?, ?, ?, ?)", [
                 id,
                 upload_data.iv,
                 upload_data.chunk_size,
                 upload_data.size,
                 upload_data.encrypted_filename,
-                user.id
+                user.id,
+                new Date().getTime()/1000,
             ])
 
             const file = await database.queryFirst("SELECT * FROM files WHERE id = ?", [id])

@@ -1,12 +1,45 @@
+const errorTag = document.querySelector("#error--tag")
+const errorTagContent = errorTag.querySelector("#error--tag--content")
+
 const usernameInput = document.querySelector("#username--input")
 const passwordInput = document.querySelector("#password--input")
+
 const loginButton = document.querySelector("#login--button")
 const registerButton = document.querySelector("#register--button")
-const loginTag = document.querySelector("#login--tag")
+
+function displayError(message) {
+    errorTag.removeAttribute("style")
+    if (typeof message === "string") {
+        errorTagContent.innerText = message in EXTERNAL_MESSAGES ? EXTERNAL_MESSAGES[message] : message
+    } else if (typeof message === "object") {
+        errorTagContent.innerText = ""
+        for (const key of message) {
+            if (!key) continue
+            errorTagContent.innerText += key in EXTERNAL_MESSAGES ? EXTERNAL_MESSAGES[key] : key
+        }
+    }
+}
+
+function enableButtons() {
+    if (usernameInput.value && passwordInput.value) {
+        loginButton.removeAttribute("disabled")
+        registerButton.removeAttribute("disabled")
+    } else {
+        loginButton.setAttribute("disabled", "true")
+        registerButton.setAttribute("disabled", "true")
+    }
+}
+enableButtons()
+usernameInput.addEventListener("input", enableButtons)
+passwordInput.addEventListener("input", enableButtons)
 
 loginButton.addEventListener("click", async () => {
     const username = usernameInput.value
     const password = passwordInput.value
+    if (!username || !password) {
+        displayError("invalid_fields")
+        return
+    }
 
     const preLoginResponse = await fetch(URL+"/api/prelogin/", {
         "method": "POST",
@@ -17,7 +50,7 @@ loginButton.addEventListener("click", async () => {
     })
     const parsedPreLoginResponse = await preLoginResponse.json()
     if (!parsedPreLoginResponse.success) {
-        loginTag.innerText = parsedPreLoginResponse.message
+        displayError(parsedPreLoginResponse.message)
         return
     }
 
@@ -33,7 +66,7 @@ loginButton.addEventListener("click", async () => {
     })
     const parsedLoginResponse = await loginResponse.json()
     if (!parsedLoginResponse.success) {
-        loginTag.innerText = parsedLoginResponse.message
+        displayError(parsedLoginResponse.message)
         return
     }
 
@@ -59,8 +92,9 @@ loginButton.addEventListener("click", async () => {
     )
     const encryption_key = new Uint8Array(decrypted)
     localStorage.setItem("encryption_key", bufferToHex(encryption_key))
-    loginTag.innerText = "Connexion réussie !"
+    document.location.href = "/"
 })
+
 registerButton.addEventListener("click", async () => {
     const response = await fetch(URL+"/api/register/", {
         "method": "POST",
@@ -71,8 +105,8 @@ registerButton.addEventListener("click", async () => {
     })
     const parsedResponse = await response.json()
     if (!parsedResponse.success) {
-        loginTag.innerText = parsedResponse.message
+        displayError([parsedResponse.message, parsedResponse.reason])
         return
     }
-    loginTag.innerText = "Compte créé avec succès ! Veuillez vous connecter."
+    loginButton.click()
 })

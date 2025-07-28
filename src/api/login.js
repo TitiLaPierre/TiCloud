@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto"
 
 export async function route_login(request, response) {
-    const { database } = request
+    const { database, session } = request
     const { username, hashed_master_key } = request.body
 
     if (!username || !hashed_master_key) {
@@ -14,6 +14,11 @@ export async function route_login(request, response) {
         response.sendJSON(400, { success: false, message: "invalid_credentials" })
         return
     }
+
+    if (session) {
+        await database.queryFirst("DELETE FROM sessions WHERE token = ?", [session.token])
+    }
+
     const token = randomUUID()
     await database.queryFirst("INSERT INTO sessions (user_id, token, creation_date) VALUES (?, ?, ?)", [user.id, token, Math.floor(Date.now() / 1000)])
     response.cookie("token", token, { maxAge: 1000 * 3600 * 24 * 7, sameSite: "strict" })

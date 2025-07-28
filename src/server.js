@@ -1,6 +1,7 @@
 import express from "express"
 import expressWs from "express-ws"
 import { route_html } from "./html.js"
+import { handle404 } from "./404.js"
 import { route_upload } from "./api/upload.js"
 import { route_login } from "./api/login.js"
 import mysql from "mysql2"
@@ -9,6 +10,7 @@ import {contextParser, handleApi404} from "./middleware/context.js"
 import { database_single_query, database_multiple_query } from "./utils/database.js"
 import {route_register} from "./api/register.js"
 import {route_prelogin} from "./api/prelogin.js"
+import {route_logout} from "./api/logout.js";
 
 const LISTENING_PORT = 8080
 
@@ -30,12 +32,14 @@ server.use(cookieParser())
 server.use(contextParser(database))
 
 server.use("/public", express.static("src/public"))
-server.get("/", route_html)
+server.get(["/", "/account/"], route_html)
 server.ws("/api/upload/", route_upload)
 server.post("/api/prelogin/", route_prelogin)
 server.post("/api/login/", route_login)
 server.post("/api/register/", route_register)
+server.post("/api/logout/", route_logout)
 server.all(["/api/*route", "/api/"], handleApi404)
+server.all("*path", handle404)
 
 server.listen(LISTENING_PORT, () => {
     console.log(`Server is listening on port ${LISTENING_PORT}`)

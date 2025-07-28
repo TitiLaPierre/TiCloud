@@ -52,7 +52,7 @@ fileButton.addEventListener("click", async function() {
             socket.close()
             return
         }
-        console.log(response.message)
+        console.warn(response.message)
     })
 
     socket.addEventListener("error", function(event) {
