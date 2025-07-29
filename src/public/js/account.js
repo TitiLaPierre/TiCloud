@@ -1,45 +1,5 @@
-const errorTag = document.querySelector("#error--tag")
-const errorTagContent = errorTag.querySelector("#error--tag--content")
-
-const usernameInput = document.querySelector("#username--input")
-const passwordInput = document.querySelector("#password--input")
-
-const loginButton = document.querySelector("#login--button")
-const registerButton = document.querySelector("#register--button")
-
-function displayError(message) {
-    errorTag.removeAttribute("style")
-    if (typeof message === "string") {
-        errorTagContent.innerText = message in EXTERNAL_MESSAGES ? EXTERNAL_MESSAGES[message] : message
-    } else if (typeof message === "object") {
-        errorTagContent.innerText = ""
-        for (const key of message) {
-            if (!key) continue
-            errorTagContent.innerText += key in EXTERNAL_MESSAGES ? EXTERNAL_MESSAGES[key] : key
-        }
-    }
-}
-
-function enableButtons() {
-    if (usernameInput.value && passwordInput.value) {
-        loginButton.removeAttribute("disabled")
-        registerButton.removeAttribute("disabled")
-    } else {
-        loginButton.setAttribute("disabled", "true")
-        registerButton.setAttribute("disabled", "true")
-    }
-}
-enableButtons()
-usernameInput.addEventListener("input", enableButtons)
-passwordInput.addEventListener("input", enableButtons)
-
-loginButton.addEventListener("click", async () => {
-    const username = usernameInput.value
-    const password = passwordInput.value
-    if (!username || !password) {
-        displayError("invalid_fields")
-        return
-    }
+async function account_login(username, password) {
+    if (!username || !password) return { success: false, message: "invalid_fields" }
 
     const preLoginResponse = await fetch(URL+"/api/prelogin/", {
         "method": "POST",
@@ -49,10 +9,7 @@ loginButton.addEventListener("click", async () => {
         "body": JSON.stringify({ username })
     })
     const parsedPreLoginResponse = await preLoginResponse.json()
-    if (!parsedPreLoginResponse.success) {
-        displayError(parsedPreLoginResponse.message)
-        return
-    }
+    if (!parsedPreLoginResponse.success) return { success: false, message: parsedPreLoginResponse.message }
 
     const master_key = await deriveMasterKey(password, parsedPreLoginResponse.salt)
     const hashed_master_key = await hashMasterKey(master_key)
@@ -65,10 +22,7 @@ loginButton.addEventListener("click", async () => {
         "body": JSON.stringify({ username, hashed_master_key })
     })
     const parsedLoginResponse = await loginResponse.json()
-    if (!parsedLoginResponse.success) {
-        displayError(parsedLoginResponse.message)
-        return
-    }
+    if (!parsedLoginResponse.success) return { success: false, message: parsedLoginResponse.message }
 
     const iv = hexToArrayBuffer(parsedLoginResponse.iv)
     const tag = hexToArrayBuffer(parsedLoginResponse.tag)
@@ -92,21 +46,58 @@ loginButton.addEventListener("click", async () => {
     )
     const encryption_key = new Uint8Array(decrypted)
     localStorage.setItem("encryption_key", bufferToHex(encryption_key))
-    document.location.href = "/"
-})
+    return { success: true, message: "logged_in" }
+}
 
-registerButton.addEventListener("click", async () => {
+async function account_register(username, password) {
     const response = await fetch(URL+"/api/register/", {
         "method": "POST",
         "headers": {
             "content-type": "application/json",
         },
-        "body": JSON.stringify({ username: usernameInput.value, password: passwordInput.value })
+        "body": JSON.stringify({ username, password })
     })
     const parsedResponse = await response.json()
-    if (!parsedResponse.success) {
-        displayError([parsedResponse.message, parsedResponse.reason])
-        return
-    }
-    loginButton.click()
-})
+    if (!parsedResponse.success) return { success: false, message: [parsedResponse.message, parsedResponse.reason] }
+
+    return { success: true, message: "user_created" }
+}
+
+async function account_logout() {
+    await fetch(URL+"/api/logout/", { method: "POST" })
+    localStorage.removeItem("encryption_key")
+    document.location.href = "/account/"
+}
+
+async function get_files() {
+    return new Promise(async (resolve, reject) => {
+        const response = await fetch("/api/files/", { method: "GET" })
+        const parsed = await response.json()
+        const encryption_key_hex = localStorage.getItem("encryption_key")
+
+        if (!encryption_key_hex) resolve({ success: false, message: "authentication_required" })
+
+        const encryption_key = await crypto.subtle.importKey(
+            "raw",
+            hexToArrayBuffer(encryption_key_hex),
+            { name: "AES-GCM" },
+            false,
+            ["decrypt"]
+        )
+
+        for (const file of parsed.files) {
+            const iv = hexToArrayBuffer(file.iv)
+            const filename = await crypto.subtle.decrypt(
+                {
+                    name: "AES-GCM",
+                    iv: iv
+                },
+                encryption_key,
+                hexToArrayBuffer(file.encrypted_filename)
+            )
+            file.filename = new TextDecoder().decode(filename)
+        }
+
+        resolve(parsed.files)
+    })
+}

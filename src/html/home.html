@@ -4,30 +4,35 @@
     <base href="/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test</title>
+    <title>Mes fichiers — Cloud</title>
     <link rel="icon" href="data:,">
     <script src="public/js/utils.js" type="text/javascript"></script>
     <script src="public/js/key.js" type="text/javascript"></script>
-    <script src="public/js/upload.js" type="text/javascript" defer></script>
+    <script src="public/js/account.js" type="text/javascript"></script>
+    <script src="public/js/upload.js" type="text/javascript"></script>
+    <script src="public/js/pages/home.js" type="text/javascript" defer></script>
     <link rel="stylesheet" href="public/css/main.css" type="text/css">
+    <link rel="stylesheet" href="public/css/home.css" type="text/css">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
 </head>
-<body style="display: flex; flex-direction: column; gap: 50px;">
-    <div>
-        <h1>Bienvenue sur la page d'accueil</h1>
-        <p>Ceci est un exemple de page HTML.</p>
+<body>
+    <nav class="nav">
+        <h3 class="nav--title">Mes Fichiers</h3>
+        <button class="nav--button" id="logout--button">Se déconnecter</button>
+    </nav>
+    <div class="files" id="files"></div>
+    <div class="popup">
+        <input type="file" id="file--input" style="display: none;" multiple />
+        <div class="popup--content">
+            <h3 class="popup--title">Envoyer un fichier</h3>
+            <p class="popup--text">Sélectionner un fichier à envoyer.</p>
+        </div>
+        <div class="popup--content popup--list" id="file--list"></div>
+        <button class="popup--close" id="file--close" style="display: none;">
+            Réduire
+            <span class="material-symbols-rounded">collapse_all</span>
+        </button>
+        <label class="popup--button" for="file--input">Ajouter un fichier</label>
     </div>
-    <div style="background: lightgray;">
-        <input type="file" id="file--input" />
-        <button id="file--button">Envoyer le fichier</button>
-        <progress id="file--progress" value="0" max="100"></progress>
-    </div>
-    <button id="logout--button">Se déconnecter</button>
-<script type="text/javascript">
-    document.querySelector("#logout--button").addEventListener("click", async function() {
-        await fetch(URL+"/api/logout/", { method: "POST" })
-        localStorage.removeItem("encryption_key")
-        document.location.href = "/account/"
-    })
-</script>
 </body>
 </html>

@@ -2,12 +2,16 @@
 
 :root {
     --black: #111122;
+    --darkGray: #4d4d4d;
     --gray: #939393;
     --lightGray: #cfcfcf;
     --light: #F0F1F3;
     --white: #ffffff;
 
     --error: #ff4d4d;
+    --success: #4caf50;
+
+    --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 * {

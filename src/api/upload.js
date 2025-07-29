@@ -33,8 +33,8 @@ export async function route_upload(ws, request) {
         return
     }
 
-    ws.send(JSON.stringify({ success: true, message: "ready_for_upload" }))
     ws.addEventListener("message", async (event) => {
+        if (upload_data.is_completed) return
         if (typeof event.data === "string") {
             let data
             try {
@@ -72,8 +72,22 @@ export async function route_upload(ws, request) {
                     ws.close()
                     return
                 }
-                stream.end(() => {
+                stream.end(async () => {
                     upload_data.is_completed = true
+                    await database.queryFirst("INSERT INTO files (id, iv, chunk_size, size, encrypted_filename, user_id, creation_date) VALUES (?, ?, ?, ?, ?, ?, ?)", [
+                        id,
+                        upload_data.iv,
+                        upload_data.chunk_size,
+                        upload_data.size,
+                        upload_data.encrypted_filename,
+                        user.id,
+                        new Date().getTime()/1000,
+                    ])
+
+                    const file = await database.queryFirst("SELECT * FROM files WHERE id = ?", [id])
+                    if (!file) {
+                        deleteFile()
+                    }
                     ws.close()
                 })
                 return
@@ -93,26 +107,14 @@ export async function route_upload(ws, request) {
     })
     ws.addEventListener("close", async () => {
         if (!upload_data.is_completed) {
+                console.warn("Upload was not completed, deleting file")
             if (stream !== null && !stream.destroyed) {
                 stream.close(deleteFile)
             } else {
                 deleteFile()
             }
-        } else {
-            await database.queryFirst("INSERT INTO files (id, iv, chunk_size, size, encrypted_filename, user_id, creation_date) VALUES (?, ?, ?, ?, ?, ?, ?)", [
-                id,
-                upload_data.iv,
-                upload_data.chunk_size,
-                upload_data.size,
-                upload_data.encrypted_filename,
-                user.id,
-                new Date().getTime()/1000,
-            ])
-
-            const file = await database.queryFirst("SELECT * FROM files WHERE id = ?", [id])
-            if (!file) {
-                deleteFile()
-            }
         }
     })
+
+    ws.send(JSON.stringify({ success: true, message: "ready_for_upload" }))
 }

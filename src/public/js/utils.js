@@ -26,9 +26,12 @@ function incrementIV(iv) {
 const EXTERNAL_MESSAGES = {
     "invalid_request": "Un problème est survenu lors de la requête.",
     "invalid_credentials": "La combinaison nom d'utilisateur/mot de passe est incorrecte.",
+    "invalid_fields": "Certains champs sont invalides.",
     "authentification_required": "Vous devez être connecté pour effectuer cette action.",
     "already_existing_user": "Un utilisateur possède déjà ce nom d'utilisateur.",
     "internal_error": "Une erreur est survenue de notre côté.",
+    "file_not_found": "Le fichier demandé n'a pas été trouvé.",
+    "unknown_route": "Une requête a été faite vers une route inconnue.",
 
     "username_not_starting_with_alphanumeric": "Le nom d'utilisateur doit commencer par une lettre ou un chiffre.",
     "username_too_short": "Le nom d'utilisateur doit comporter au moins 3 caractères.",
@@ -51,4 +54,6 @@ const EXTERNAL_MESSAGES = {
     "logged_in": "Vous avez été connecté à votre compte.",
     "logged_out": "Vous avez été déconnecté de votre compte.",
     "ready_for_upload": "Le serveur est prêt à recevoir un fichier.",
+    "files_fetched": "Fichiers ont été récupérés.",
+    "file_deleted": "Le fichier a été supprimé.",
 }

@@ -11,6 +11,7 @@ import { database_single_query, database_multiple_query } from "./utils/database
 import {route_register} from "./api/register.js"
 import {route_prelogin} from "./api/prelogin.js"
 import {route_logout} from "./api/logout.js";
+import {route_file_delete, route_files} from "./api/files.js"
 
 const LISTENING_PORT = 8080
 
@@ -33,11 +34,16 @@ server.use(contextParser(database))
 
 server.use("/public", express.static("src/public"))
 server.get(["/", "/account/"], route_html)
+
 server.ws("/api/upload/", route_upload)
+server.get("/api/files/", route_files)
+server.delete("/api/file/:fileId", route_file_delete)
+
 server.post("/api/prelogin/", route_prelogin)
 server.post("/api/login/", route_login)
 server.post("/api/register/", route_register)
 server.post("/api/logout/", route_logout)
+
 server.all(["/api/*route", "/api/"], handleApi404)
 server.all("*path", handle404)
 

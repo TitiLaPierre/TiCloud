@@ -15,6 +15,7 @@ body {
     min-width: min(650px, 95%);
     max-height: 95%;
     overflow: auto;
+    box-shadow: var(--shadow);
 }
 
 .form--title {
