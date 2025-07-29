@@ -15,10 +15,10 @@ function bufferToHex(buffer) {
 function incrementIV(iv) {
     for (let i = iv.length - 1; i >= 0; i--) {
         if (iv[i] < 255) {
-            iv[i]++;
-            break;
+            iv[i]++
+            break
         } else {
-            iv[i] = 0;
+            iv[i] = 0
         }
     }
 }

@@ -1,5 +1,5 @@
 import fs from "fs"
-import crypto from "crypto";
+import crypto from "crypto"
 
 const UPLOAD_FOLDER = "uploads"
 

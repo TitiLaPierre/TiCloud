@@ -1,3 +1,7 @@
+import fs from "fs"
+
+const UPLOAD_FOLDER = "uploads"
+
 export async function route_files(request, response) {
     const { database, session, user } = request
 
@@ -35,6 +39,10 @@ export async function route_file_delete(request, response) {
         return
     }
 
-    await database.query("DELETE FROM files WHERE id = ?", [fileId])
+    if (fs.existsSync(`${UPLOAD_FOLDER}/${file.id}`)) {
+        fs.unlinkSync(`${UPLOAD_FOLDER}/${file.id}`)
+    }
+
+    await database.queryFirst("DELETE FROM files WHERE id = ?", [fileId])
     response.sendJSON(200, { success: true, message: "file_deleted" })
 }

@@ -2,6 +2,8 @@ const CHUNK_SIZE = 1024*1024*5 // 5 Mo
 
 async function upload_file(file, progressCallback) {
     return new Promise(async (resolve, reject) => {
+        let newFile = null
+
         const filename = file.name
         const encryption_key_hex = localStorage.getItem("encryption_key")
 
@@ -33,12 +35,21 @@ async function upload_file(file, progressCallback) {
             const response = JSON.parse(event.data)
             if (response.message === "ready_for_upload") {
                 console.info("Envoi du fichier en cours...")
+                newFile = {
+                    id: response.file_id,
+                    iv: bufferToHex(iv),
+                    filename,
+                    encrypted_filename: bufferToHex(encrypted_filename),
+                    chunk_size: CHUNK_SIZE,
+                    size: file.size,
+                    creation_date: file.creation_date,
+                }
                 socket.send(JSON.stringify({ type: "start_upload", encrypted_filename: bufferToHex(encrypted_filename), iv: bufferToHex(iv), chunk_size: CHUNK_SIZE, size: file.size }))
                 incrementIV(iv)
                 await sendChunks()
                 console.info("Fichier envoyé avec succès")
                 socket.send(JSON.stringify({ type: "end_upload" }))
-                resolve({ success: true, message: "file_uploaded" })
+                resolve({ success: true, message: "file_uploaded", file: newFile })
             }
             console.warn(response.message)
         })

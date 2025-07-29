@@ -101,3 +101,8 @@ async function get_files() {
         resolve(parsed.files)
     })
 }
+
+async function delete_file(file_id) {
+    const response = await fetch(`/api/files/${file_id}/`, {method: "DELETE"})
+    return await response.json()
+}

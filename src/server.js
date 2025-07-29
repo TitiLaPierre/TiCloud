@@ -10,7 +10,7 @@ import {contextParser, handleApi404} from "./middleware/context.js"
 import { database_single_query, database_multiple_query } from "./utils/database.js"
 import {route_register} from "./api/register.js"
 import {route_prelogin} from "./api/prelogin.js"
-import {route_logout} from "./api/logout.js";
+import {route_logout} from "./api/logout.js"
 import {route_file_delete, route_files} from "./api/files.js"
 
 const LISTENING_PORT = 8080
@@ -37,7 +37,7 @@ server.get(["/", "/account/"], route_html)
 
 server.ws("/api/upload/", route_upload)
 server.get("/api/files/", route_files)
-server.delete("/api/file/:fileId", route_file_delete)
+server.delete("/api/files/:fileId", route_file_delete)
 
 server.post("/api/prelogin/", route_prelogin)
 server.post("/api/login/", route_login)

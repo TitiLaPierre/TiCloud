@@ -16,23 +16,49 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
 </head>
 <body>
-    <nav class="nav">
-        <h3 class="nav--title">Mes Fichiers</h3>
-        <button class="nav--button" id="logout--button">Se déconnecter</button>
-    </nav>
-    <div class="files" id="files"></div>
-    <div class="popup">
-        <input type="file" id="file--input" style="display: none;" multiple />
-        <div class="popup--content">
-            <h3 class="popup--title">Envoyer un fichier</h3>
-            <p class="popup--text">Sélectionner un fichier à envoyer.</p>
+    <div class="header">
+        <div class="header--content">
+            <div class="header--group">
+                <h1 class="header--title">Cloud</h1>
+                <hr class="header--line">
+                <label class="header--label" for="expandable--header">
+                    <span class="material-symbols-rounded" id="upload--label--icon">cloud</span>
+                    <span id="upload--label--text">Aucun transfert en cours</span>
+                </label>
+            </div>
+            <div class="header--links">
+                <label class="header--link" for="upload--input">Envoyer un fichier</label>
+                <button class="header--link" id="logout--button">Se déconnecter</button>
+            </div>
         </div>
-        <div class="popup--content popup--list" id="file--list"></div>
-        <button class="popup--close" id="file--close" style="display: none;">
-            Réduire
-            <span class="material-symbols-rounded">collapse_all</span>
-        </button>
-        <label class="popup--button" for="file--input">Ajouter un fichier</label>
+        <input type="checkbox" id="expandable--header" style="display: none;">
+        <div class="header--expandable">
+            <input type="file" id="upload--input" style="display: none;" multiple accept="*/*">
+            <div class="header--group">
+                <h3 class="header--subtitle">File d'attente</h3>
+                <label class="header--button" for="upload--input">Ajouter un fichier</label>
+            </div>
+            <p class="header--label" id="upload--empty">Rien à afficher ici</p>
+            <div class="header--list" id="upload--list"></div>
+        </div>
+        <label class="header--expand" for="expandable--header">
+            <span class="material-symbols-rounded">expand_more</span>
+        </label>
+    </div>
+    <div class="page">
+        <nav class="nav">
+            <h3 class="nav--title">Mes Fichiers</h3>
+        </nav>
+        <div class="files" id="files"><div class="file" data-file-id="test">
+            <div class="file--icon">
+                <span class="material-symbols-rounded">draft</span>
+            </div>
+            <div class="file--label">
+                <span class="file--name">test.txt</span>
+                <button class="file--actions">
+                    <span class="material-symbols-rounded">more_vert</span>
+                </button>
+            </div></div></div>
     </div>
 </body>
 </html>
