@@ -1,4 +1,5 @@
 const CHUNK_SIZE = 1024*1024*5 // 5 Mo
+const AUTH_TAG_LENGTH = 16
 
 async function upload_file(file, progressCallback) {
     return new Promise(async (resolve, reject) => {
@@ -22,7 +23,8 @@ async function upload_file(file, progressCallback) {
         const encrypted_filename = await crypto.subtle.encrypt(
             {
                 name: "AES-GCM",
-                iv: iv
+                iv: iv,
+                tagLength: AUTH_TAG_LENGTH*8,
             },
             encryption_key,
             new TextEncoder().encode(filename)
@@ -38,14 +40,14 @@ async function upload_file(file, progressCallback) {
                 newFile = {
                     id: response.file_id,
                     iv: bufferToHex(iv),
+                    auth_tag_length: AUTH_TAG_LENGTH,
                     filename,
                     encrypted_filename: bufferToHex(encrypted_filename),
                     chunk_size: CHUNK_SIZE,
                     size: file.size,
-                    creation_date: file.creation_date,
+                    creation_date: new Date().getTime()/1000,
                 }
-                socket.send(JSON.stringify({ type: "start_upload", encrypted_filename: bufferToHex(encrypted_filename), iv: bufferToHex(iv), chunk_size: CHUNK_SIZE, size: file.size }))
-                incrementIV(iv)
+                socket.send(JSON.stringify({ type: "start_upload", encrypted_filename: bufferToHex(encrypted_filename), iv: bufferToHex(iv), auth_tag_length: AUTH_TAG_LENGTH, chunk_size: CHUNK_SIZE, size: file.size }))
                 await sendChunks()
                 console.info("Fichier envoyé avec succès")
                 socket.send(JSON.stringify({ type: "end_upload" }))
@@ -61,17 +63,19 @@ async function upload_file(file, progressCallback) {
             progressCallback(0)
             for (let i = 0; i < chunkCount; i++) {
                 const chunk = await file.slice(i*CHUNK_SIZE, Math.min((i+1)*CHUNK_SIZE, file.size)).arrayBuffer()
+                incrementIV(iv)
 
                 const encrypted = await crypto.subtle.encrypt(
                     {
                         name: "AES-GCM",
-                        iv: iv
+                        iv: iv,
+                        tagLength: AUTH_TAG_LENGTH*8,
                     },
                     encryption_key,
                     chunk
                 )
+
                 socket.send(encrypted)
-                incrementIV(iv)
                 progressCallback(i*100/chunkCount)
             }
             progressCallback(100)

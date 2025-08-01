@@ -16,14 +16,13 @@ export async function route_upload(ws, request) {
     if (!fs.existsSync(UPLOAD_FOLDER)) fs.mkdirSync(UPLOAD_FOLDER, { recursive: true })
     deleteFile()
 
-    let stream = fs.createWriteStream(`${UPLOAD_FOLDER}/${id}`, { flags: "a" })
-
     const upload_data = {
         is_completed: false,
         received_headers: false,
         iv: null,
         chunk_size: null,
         size: null,
+        calculated_size: 0,
         encrypted_filename: null,
     }
 
@@ -32,6 +31,8 @@ export async function route_upload(ws, request) {
         ws.close()
         return
     }
+
+    let stream = fs.createWriteStream(`${UPLOAD_FOLDER}/${id}`, { flags: "a" })
 
     ws.addEventListener("message", async (event) => {
         if (upload_data.is_completed) return
@@ -44,13 +45,13 @@ export async function route_upload(ws, request) {
                 ws.close()
                 return
             }
-            if (!data) {
+            if (!data || !data.type) {
                 ws.send(JSON.stringify({ success: false, message: "invalid_request" }))
                 ws.close()
                 return
             }
             if (data.type === "start_upload") {
-                if (!data.encrypted_filename || !data.iv || !data.chunk_size || !data.size) {
+                if (!data.encrypted_filename || !data.iv || !data.auth_tag_length || !data.chunk_size || !data.size) {
                     ws.send(JSON.stringify({ success: false, message: "invalid_request" }))
                     ws.close()
                     return
@@ -62,6 +63,7 @@ export async function route_upload(ws, request) {
                 }
                 upload_data.received_headers = true
                 upload_data.iv = data.iv
+                upload_data.auth_tag_length = data.auth_tag_length
                 upload_data.chunk_size = data.chunk_size
                 upload_data.size = data.size
                 upload_data.encrypted_filename = data.encrypted_filename
@@ -74,11 +76,12 @@ export async function route_upload(ws, request) {
                 }
                 stream.end(async () => {
                     upload_data.is_completed = true
-                    await database.queryFirst("INSERT INTO files (id, iv, chunk_size, size, encrypted_filename, user_id, creation_date) VALUES (?, ?, ?, ?, ?, ?, ?)", [
+                    await database.queryFirst("INSERT INTO files (id, iv, auth_tag_length, chunk_size, size, encrypted_filename, user_id, creation_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [
                         id,
                         upload_data.iv,
+                        upload_data.auth_tag_length,
                         upload_data.chunk_size,
-                        upload_data.size,
+                        upload_data.calculated_size,
                         upload_data.encrypted_filename,
                         user.id,
                         new Date().getTime()/1000,
@@ -92,12 +95,13 @@ export async function route_upload(ws, request) {
                 })
                 return
             }
-        } else if (stream === null) {
+        } else if (stream === null || !upload_data.received_headers) {
             ws.send(JSON.stringify({ success: false, message: "invalid_request" }))
             ws.close()
             return
         }
         const buffer = Buffer.from(event.data)
+        upload_data.calculated_size += buffer.length
         stream.write(buffer, (error) => {
             if (error) {
                 ws.send(JSON.stringify({ success: false, message: "internal_error" }))
@@ -116,5 +120,5 @@ export async function route_upload(ws, request) {
         }
     })
 
-    ws.send(JSON.stringify({ success: true, message: "ready_for_upload" }))
+    ws.send(JSON.stringify({ success: true, message: "ready_for_upload", file_id: id }))
 }

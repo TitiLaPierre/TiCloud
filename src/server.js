@@ -13,17 +13,20 @@ import {route_prelogin} from "./api/prelogin.js"
 import {route_logout} from "./api/logout.js"
 import {route_file_get, route_file_delete, route_files} from "./api/files.js"
 import {route_download} from "./api/download.js";
+import dotenv from "dotenv"
 
-const LISTENING_PORT = 8080
+dotenv.config()
+
+const LISTENING_PORT = process.env.PORT
 
 const server = express()
 expressWs(server)
 
 const database = mysql.createConnection({
-    host: "localhost",
-    user: "cloud",
-    password: "rNkfRL2EwZ7gE6#ikRKKkRAQa%62Wo7r",
-    database: "cloud",
+    host: process.env.DATABASE_HOST,
+    user: process.env.DATABASE_USER,
+    password: process.env.DATABASE_PASSWORD,
+    database: process.env.DATABASE_NAME,
 })
 
 database.queryFirst = database_single_query.bind(null, database)
