@@ -196,7 +196,6 @@
     display: flex;
     flex-wrap: wrap;
     width: 100%;
-    padding-bottom: 250px;
     gap: 25px;
 }
 
@@ -252,3 +251,33 @@
     }
 }
 .file:hover .file--actions { display: flex; }
+
+.actions {
+    border: 1px solid var(--lightGray);
+    position: absolute;
+    top: 50px;
+    left: 50px;
+    background: var(--white);
+    padding: 5px;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+}
+.action {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: none;
+    background: none;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 10px;
+    transition-duration: .3s;
+}
+.action:hover {
+    background: var(--light);
+    color: var(--black);
+}

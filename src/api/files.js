@@ -23,6 +23,33 @@ export async function route_files(request, response) {
     response.sendJSON(200, { success: true, message: "files_fetched", files: output })
 }
 
+export async function route_file_get(request, response) {
+    const { database, session, user } = request
+    const fileId = request.params.fileId
+
+    if (!session) {
+        response.sendJSON(401, { success: false, message: "authentification_required" })
+        return
+    }
+
+    const file = await database.queryFirst("SELECT * FROM files WHERE id = ? AND user_id = ?", [fileId, user.id])
+
+    if (!file) {
+        response.sendJSON(404, { success: false, message: "file_not_found" })
+        return
+    }
+
+    const output = {
+        id: file.id,
+        iv: file.iv,
+        encrypted_filename: file.encrypted_filename,
+        chunk_size: file.chunk_size,
+        size: file.size,
+        creation_date: file.creation_date,
+    }
+    response.sendJSON(200, { success: true, message: "file_fetched", file: output })
+}
+
 export async function route_file_delete(request, response) {
     const { database, session, user } = request
     const fileId = request.params.fileId

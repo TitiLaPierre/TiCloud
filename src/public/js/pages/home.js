@@ -8,6 +8,10 @@ const fileList = document.querySelector("#files")
 
 const logoutButton = document.querySelector("#logout--button")
 
+const actionsMenu = document.querySelector("#actions")
+const actionDownload = document.querySelector("#action--download")
+const actionDelete = document.querySelector("#action--delete")
+
 let files = null
 
 function update_upload_list() {
@@ -101,13 +105,51 @@ document.addEventListener("DOMContentLoaded", function () {
     uploadInput.value = ""
     update_upload_list()
     update_file_list(true)
+    actionsMenu.openedFor = null
 })
 
-// document.addEventListener("click", async function (e) {
-//     if (e.target.closest(".file")) {
-//         const fileId = e.target.closest(".file").getAttribute("data-file-id")
-//         await delete_file(fileId)
-//         files.splice(files.findIndex(file => file.id === fileId), 1)
-//         update_file_list(false)
-//     }
-// })
+document.addEventListener("click", function (e) {
+    const fileElement = e.target.closest(".file--actions")
+    const fileId = fileElement?.closest(".file")?.getAttribute("data-file-id")
+    if (fileElement && fileId && e.target.closest(".file--actions")) {
+        actionsMenu.openedFor = fileId
+        actionsMenu.removeAttribute("style")
+        actionsMenu.style.left = `${e.pageX}px`
+        actionsMenu.style.top = `${e.pageY}px`
+    } else if (!e.target.closest("#actions") && actionsMenu.openedFor) {
+        actionsMenu.openedFor = null
+        actionsMenu.setAttribute("style", "display: none;")
+    }
+})
+
+document.addEventListener("contextmenu", function (e) {
+    const fileId = e.target.closest(".file")?.getAttribute("data-file-id")
+    if (fileId) {
+        e.preventDefault()
+        actionsMenu.openedFor = fileId
+        actionsMenu.removeAttribute("style")
+        actionsMenu.style.left = `${e.pageX}px`
+        actionsMenu.style.top = `${e.pageY}px`
+    } else if (!e.target.closest("#actions") && actionsMenu.openedFor) {
+        actionsMenu.openedFor = null
+        actionsMenu.setAttribute("style", "display: none;")
+    }
+})
+
+actionDownload.addEventListener("click", async function () {
+    if (actionsMenu.openedFor) {
+        const fileId = actionsMenu.openedFor
+        await download_file(fileId)
+    }
+})
+
+actionDelete.addEventListener("click", async function () {
+    if (actionsMenu.openedFor) {
+        const fileId = actionsMenu.openedFor
+        await delete_file(fileId)
+        files.splice(files.findIndex(f => f.id === fileId), 1)
+        update_file_list(false)
+        actionsMenu.openedFor = null
+        actionsMenu.setAttribute("style", "display: none;")
+    }
+})

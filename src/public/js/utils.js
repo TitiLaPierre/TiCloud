@@ -1,5 +1,11 @@
 const URL = window.location.protocol + "//" + window.location.host
 
+streamSaver.mitm = URL+"/mitm.html"
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register(URL+"/sw.js", { scope: '/' })
+}
+
 function hexToArrayBuffer(hex) {
     const typedArray = new Uint8Array(hex.length / 2)
     for (let i = 0; i < typedArray.length; i++) {
