@@ -8,7 +8,9 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/server.js"
+    "start": "node server.js",
+    "start:dev": "IS_DEVELOPMENT=true node server.js",
+    "start:prod": "IS_DEVELOPMENT=false node server.js"
   },
   "dependencies": {
     "argon2": "^0.43.1",
