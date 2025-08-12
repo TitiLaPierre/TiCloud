@@ -2,7 +2,10 @@ async function download_file(fileId) {
     return new Promise(async (resolve, reject) => {
         const encryption_key_hex = localStorage.getItem("encryption_key")
 
-        if (!encryption_key_hex) resolve({ success: false, message: "authentication_required" })
+        if (!encryption_key_hex) {
+            resolve({ success: false, message: "authentication_required" })
+            return
+        }
 
         const encryption_key = await crypto.subtle.importKey(
             "raw",
@@ -12,7 +15,7 @@ async function download_file(fileId) {
             ["decrypt"]
         )
 
-        const fileDataResponse = await (await fetch(`/api/files/${fileId}/`, { method: "GET" })).json()
+        const fileDataResponse = await (await fetch(SITE_URL+`/api/files/${fileId}/`, { method: "GET" })).json()
         const fileData = fileDataResponse.file
 
         const iv = new Uint8Array(hexToArrayBuffer(fileData.iv))
@@ -26,7 +29,7 @@ async function download_file(fileId) {
             hexToArrayBuffer(fileData.encrypted_filename)
         ))
 
-        const socket = new WebSocket(URL + `/api/download/${fileId}/`)
+        const socket = new WebSocket(SITE_URL+ `/api/download/${fileId}/`)
         socket.binaryType = "arraybuffer"
 
         const readableStream = new ReadableStream({

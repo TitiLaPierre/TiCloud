@@ -58,6 +58,46 @@ function update_upload_list() {
     }
 }
 
+function generate_file_preview(file) {
+    const previewElement = document.createElement("div")
+    previewElement.classList.add("file--preview")
+
+    if (file.hasPreview) {
+        if (file.preview) {
+            previewElement.innerHTML = `<img src="${file.preview}" alt="${file.filename}">`
+        } else {
+            previewElement.innerHTML = `<span class="preview__loading material-symbols-rounded">progress_activity</span>`
+            new Promise(async (resolve, reject) => {
+                const preview = await get_preview(file.id)
+                if (preview && preview.data && preview.data.startsWith("data:image/")) {
+                    file.preview = preview.data
+                    previewElement.innerHTML = `<img src="${file.preview}" alt="${file.filename}">`
+                    resolve()
+                } else {
+                    file.hasPreview = false
+                    previewElement.innerHTML = `<span class="material-symbols-rounded">draft</span>`
+                }
+            })
+        }
+    } else {
+        previewElement.innerHTML = `<span class="material-symbols-rounded">draft</span>`
+    }
+
+    return previewElement
+}
+
+function generate_file_label(file) {
+    const labelElement = document.createElement("div")
+    labelElement.classList.add("file--label")
+    labelElement.innerHTML = `
+        <span class="file--name">${file.filename}</span>
+        <button class="file--actions">
+            <span class="material-symbols-rounded">more_vert</span>
+        </button>
+    `
+    return labelElement
+}
+
 async function update_file_list(refetch) {
     if (files === null || refetch) {
         files = await get_files()
@@ -67,16 +107,8 @@ async function update_file_list(refetch) {
         const fileElement = document.createElement("div")
         fileElement.classList.add("file")
         fileElement.setAttribute("data-file-id", file.id)
-        fileElement.innerHTML = `
-            <div class="file--icon">
-                <span class="material-symbols-rounded">draft</span>
-            </div>
-            <div class="file--label">
-                <span class="file--name">${file.filename}</span>
-                <button class="file--actions">
-                    <span class="material-symbols-rounded">more_vert</span>
-                </button>
-            </div>`
+        fileElement.appendChild(generate_file_preview(file))
+        fileElement.appendChild(generate_file_label(file))
         fileList.appendChild(fileElement)
     }
 }
@@ -91,6 +123,16 @@ uploadInput.addEventListener("change", async function () {
         })
         file.uploaded = true
         update_upload_list()
+        if (file.type.startsWith("image/")) {
+            try {
+                const preview = await imageFileToThumbnail(file)
+                response.file.hasPreview = true
+                response.file.preview = preview
+                upload_preview(response.file.id, preview)
+            } catch (error) {
+                console.error(`Failed to create preview of ${file.name}`, error)
+            }
+        }
         files.push(response.file)
         update_file_list(false)
     }

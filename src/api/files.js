@@ -18,6 +18,7 @@ export async function route_files(request, response) {
         chunk_size: file.chunk_size,
         size: file.size,
         creation_date: file.creation_date,
+        hasPreview: file.preview_id !== null,
     }))
 
     response.sendJSON(200, { success: true, message: "files_fetched", files: output })
@@ -46,6 +47,7 @@ export async function route_file_get(request, response) {
         chunk_size: file.chunk_size,
         size: file.size,
         creation_date: file.creation_date,
+        hasPreview: file.preview_id !== null,
     }
     response.sendJSON(200, { success: true, message: "file_fetched", file: output })
 }

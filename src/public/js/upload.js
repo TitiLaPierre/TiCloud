@@ -1,6 +1,3 @@
-const CHUNK_SIZE = 1024*1024*5 // 5 Mo
-const AUTH_TAG_LENGTH = 16
-
 async function upload_file(file, progressCallback) {
     return new Promise(async (resolve, reject) => {
         let newFile = null
@@ -8,7 +5,10 @@ async function upload_file(file, progressCallback) {
         const filename = file.name
         const encryption_key_hex = localStorage.getItem("encryption_key")
 
-        if (!encryption_key_hex) resolve({ success: false, message: "authentication_required" })
+        if (!encryption_key_hex) {
+            resolve({ success: false, message: "authentication_required" })
+            return
+        }
 
         const encryption_key = await crypto.subtle.importKey(
             "raw",
@@ -30,7 +30,7 @@ async function upload_file(file, progressCallback) {
             new TextEncoder().encode(filename)
         )
 
-        const socket = new WebSocket(URL + "/api/upload/")
+        const socket = new WebSocket(SITE_URL + "/api/upload/")
         socket.binaryType = "arraybuffer"
 
         socket.addEventListener("message", async function(event) {

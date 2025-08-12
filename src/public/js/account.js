@@ -1,7 +1,7 @@
 async function account_login(username, password) {
     if (!username || !password) return { success: false, message: "invalid_fields" }
 
-    const preLoginResponse = await fetch(URL+"/api/prelogin/", {
+    const preLoginResponse = await fetch(SITE_URL+"/api/prelogin/", {
         "method": "POST",
         "headers": {
             "content-type": "application/json",
@@ -14,7 +14,7 @@ async function account_login(username, password) {
     const master_key = await deriveMasterKey(password, parsedPreLoginResponse.salt)
     const hashed_master_key = await hashMasterKey(master_key)
 
-    const loginResponse = await fetch(URL+"/api/login/", {
+    const loginResponse = await fetch(SITE_URL+"/api/login/", {
         "method": "POST",
         "headers": {
             "content-type": "application/json",
@@ -50,7 +50,7 @@ async function account_login(username, password) {
 }
 
 async function account_register(username, password) {
-    const response = await fetch(URL+"/api/register/", {
+    const response = await fetch(SITE_URL+"/api/register/", {
         "method": "POST",
         "headers": {
             "content-type": "application/json",
@@ -64,18 +64,21 @@ async function account_register(username, password) {
 }
 
 async function account_logout() {
-    await fetch(URL+"/api/logout/", { method: "POST" })
+    await fetch(SITE_URL+"/api/logout/", { method: "POST" })
     localStorage.removeItem("encryption_key")
     document.location.href = "/account/"
 }
 
 async function get_files() {
     return new Promise(async (resolve, reject) => {
-        const response = await fetch("/api/files/", { method: "GET" })
+        const response = await fetch(SITE_URL+"/api/files/", { method: "GET" })
         const parsed = await response.json()
         const encryption_key_hex = localStorage.getItem("encryption_key")
 
-        if (!encryption_key_hex) resolve({ success: false, message: "authentication_required" })
+        if (!encryption_key_hex) {
+            resolve({ success: false, message: "authentication_required" })
+            return
+        }
 
         const encryption_key = await crypto.subtle.importKey(
             "raw",
@@ -103,6 +106,89 @@ async function get_files() {
 }
 
 async function delete_file(file_id) {
-    const response = await fetch(`/api/files/${file_id}/`, {method: "DELETE"})
+    const response = await fetch(SITE_URL+`/api/files/${file_id}/`, {method: "DELETE"})
     return await response.json()
+}
+
+async function get_preview(file_id) {
+    return new Promise(async (resolve, reject) => {
+        const encryption_key_hex = localStorage.getItem("encryption_key")
+
+        if (!encryption_key_hex) {
+            resolve({ success: false, message: "authentication_required" })
+            return
+        }
+
+        const encryption_key = await crypto.subtle.importKey(
+            "raw",
+            hexToArrayBuffer(encryption_key_hex),
+            { name: "AES-GCM" },
+            false,
+            ["decrypt"]
+        )
+
+        const response = await (await fetch(SITE_URL+`/api/preview/${file_id}/`, { method: "GET" })).json()
+        if (!response.success || !response.encrypted_data || !response.iv) {
+            resolve({ success: false, message: response.message })
+            return
+        }
+
+        const iv = hexToArrayBuffer(response.iv)
+        response.data = new TextDecoder().decode(await crypto.subtle.decrypt(
+            {
+                name: "AES-GCM",
+                iv: iv,
+            },
+            encryption_key,
+            hexToArrayBuffer(response.encrypted_data)
+        ))
+
+        resolve(response)
+    })
+}
+
+async function upload_preview(file_id, base64) {
+    return new Promise(async (resolve, reject) => {
+        const encryption_key_hex = localStorage.getItem("encryption_key")
+
+        if (!encryption_key_hex) {
+            resolve({ success: false, message: "authentication_required" })
+            return
+        }
+
+        const encryption_key = await crypto.subtle.importKey(
+            "raw",
+            hexToArrayBuffer(encryption_key_hex),
+            { name: "AES-GCM" },
+            false,
+            ["encrypt"]
+        )
+
+        const iv = crypto.getRandomValues(new Uint8Array(12))
+
+        const encrypted_base64 = await crypto.subtle.encrypt(
+            {
+                name: "AES-GCM",
+                iv: iv,
+                tagLength: AUTH_TAG_LENGTH*8,
+            },
+            encryption_key,
+            new TextEncoder().encode(base64)
+        )
+
+        const response = await fetch(SITE_URL+`/api/preview/${file_id}/`, {
+            method: "POST",
+            headers: {
+                "content-type": "application/json"
+            },
+            body: JSON.stringify({ encrypted_data: bufferToHex(encrypted_base64), iv: bufferToHex(iv) })
+        })
+
+        const parsedResponse = await response.json()
+        if (!parsedResponse.success) {
+            resolve({ success: false, message: parsedResponse.message })
+            return
+        }
+        resolve({ success: true, message: "preview_uploaded" })
+    })
 }

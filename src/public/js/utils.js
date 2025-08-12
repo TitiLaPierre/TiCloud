@@ -1,9 +1,14 @@
-const URL = window.location.protocol + "//" + window.location.host
+const CHUNK_SIZE = 1024*1024*5 // 5 Mo
+const MAX_PREVIEW_BYTES = 1024*100 // 100 Ko
+const MAX_PREVIEW_SIZE = 800
+const AUTH_TAG_LENGTH = 16
 
-streamSaver.mitm = URL+"/mitm.html"
+const SITE_URL = window.location.protocol + "//" + window.location.host
+
+streamSaver.mitm = SITE_URL+"/mitm.html"
 
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register(URL+"/sw.js", { scope: '/' })
+    navigator.serviceWorker.register(SITE_URL+"/sw.js", { scope: '/' })
 }
 
 function hexToArrayBuffer(hex) {
@@ -16,6 +21,10 @@ function hexToArrayBuffer(hex) {
 
 function bufferToHex(buffer) {
     return [...new Uint8Array(buffer)].map(b => b.toString(16).padStart(2, '0')).join('')
+}
+
+function bufferToText(buffer) {
+    return new TextDecoder().decode(buffer)
 }
 
 function incrementIV(iv) {

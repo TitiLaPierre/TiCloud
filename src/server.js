@@ -12,8 +12,9 @@ import {route_register} from "./api/register.js"
 import {route_prelogin} from "./api/prelogin.js"
 import {route_logout} from "./api/logout.js"
 import {route_file_get, route_file_delete, route_files} from "./api/files.js"
-import {route_download} from "./api/download.js";
+import {route_download} from "./api/download.js"
 import dotenv from "dotenv"
+import {route_preview_get, route_preview_post} from "./api/preview.js"
 
 dotenv.config()
 
@@ -32,7 +33,7 @@ const database = mysql.createConnection({
 database.queryFirst = database_single_query.bind(null, database)
 database.queryAll = database_multiple_query.bind(null, database)
 
-server.use(express.json())
+server.use(express.json({ limit: "150kb" }))
 server.use(cookieParser())
 server.use(contextParser(database))
 
@@ -42,9 +43,13 @@ server.get(["/", "/account/"], route_html)
 
 server.ws("/api/upload/", route_upload)
 server.ws("/api/download/:fileId", route_download)
+
 server.get("/api/files/", route_files)
 server.get("/api/files/:fileId", route_file_get)
 server.delete("/api/files/:fileId", route_file_delete)
+
+server.get("/api/preview/:fileId", route_preview_get)
+server.post("/api/preview/:fileId", route_preview_post)
 
 server.post("/api/prelogin/", route_prelogin)
 server.post("/api/login/", route_login)
