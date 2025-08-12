@@ -30,7 +30,8 @@ async function upload_file(file, progressCallback) {
             new TextEncoder().encode(filename)
         )
 
-        const socket = new WebSocket(SITE_URL + "/api/upload/")
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+        const socket = new WebSocket(`${protocol}//${window.location.host}/api/upload/`)
         socket.binaryType = "arraybuffer"
 
         socket.addEventListener("message", async function(event) {

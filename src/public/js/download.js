@@ -29,7 +29,8 @@ async function download_file(fileId) {
             hexToArrayBuffer(fileData.encrypted_filename)
         ))
 
-        const socket = new WebSocket(SITE_URL+ `/api/download/${fileId}/`)
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+        const socket = new WebSocket(`${protocol}//${window.location.host}/api/download/${fileId}/`)
         socket.binaryType = "arraybuffer"
 
         const readableStream = new ReadableStream({

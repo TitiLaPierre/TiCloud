@@ -16,13 +16,24 @@ import {route_download} from "./api/download.js"
 import dotenv from "dotenv"
 import {route_preview_get, route_preview_post} from "./api/preview.js"
 import fs from "fs";
+import * as https from "node:https";
 
 dotenv.config()
 
 const LISTENING_PORT = process.env.PORT
 
-const server = express()
-expressWs(server)
+const app = express()
+let server
+
+if (process.env.IS_DEVELOPMENT) {
+    expressWs(app)
+} else {
+    server = https.createServer({
+        key: fs.readFileSync("/etc/letsencrypt/live/titilapierre.fr/privkey.pem"),
+        cert: fs.readFileSync("/etc/letsencrypt/live/titilapierre.fr/fullchain.pem"),
+    })
+    expressWs(app, server)
+}
 
 const database = mysql.createConnection({
     host: process.env.DATABASE_HOST,
@@ -34,37 +45,44 @@ const database = mysql.createConnection({
 database.queryFirst = database_single_query.bind(null, database)
 database.queryAll = database_multiple_query.bind(null, database)
 
-server.use(express.json({ limit: "6mb" }))
-server.use(cookieParser())
-server.use(contextParser(database))
+app.use(express.json({ limit: "6mb" }))
+app.use(cookieParser())
+app.use(contextParser(database))
 
-server.use("/public", express.static("src/public"))
-server.use("/", express.static("src/external"))
-server.get(["/", "/account/"], route_html)
+app.use("/public", express.static("src/public"))
+app.use("/", express.static("src/external"))
+app.get(["/", "/account/"], route_html)
 // TODO: Remove the debug route
-server.get("/debug/", (request, response) => {
+app.get("/debug/", (request, response) => {
     response.status(200).contentType("text/html").send(fs.readFileSync("src/html/debug.html", "utf8"))
 })
 
-server.ws("/api/upload/", route_upload)
-server.ws("/api/download/:fileId", route_download)
+app.ws("/api/upload/", route_upload)
+app.ws("/api/download/:fileId", route_download)
 
-server.get("/api/files/", route_files)
-server.get("/api/files/:fileId", route_file_get)
-server.delete("/api/files/:fileId", route_file_delete)
+app.get("/api/files/", route_files)
+app.get("/api/files/:fileId", route_file_get)
+app.delete("/api/files/:fileId", route_file_delete)
 
-server.get("/api/preview/:fileId", route_preview_get)
-server.post("/api/preview/:fileId", route_preview_post)
+app.get("/api/preview/:fileId", route_preview_get)
+app.post("/api/preview/:fileId", route_preview_post)
 
-server.post("/api/prelogin/", route_prelogin)
-server.post("/api/login/", route_login)
-server.post("/api/register/", route_register)
-server.post("/api/logout/", route_logout)
+app.post("/api/prelogin/", route_prelogin)
+app.post("/api/login/", route_login)
+app.post("/api/register/", route_register)
+app.post("/api/logout/", route_logout)
 
-server.all(["/api/*route", "/api/"], handleApi404)
-server.all("*path", handle404)
+app.all(["/api/*route", "/api/"], handleApi404)
+app.all("*path", handle404)
 
-server.listen(LISTENING_PORT, () => {
-    console.log(`Server is listening on port ${LISTENING_PORT}`)
-    console.log(`http://localhost:${LISTENING_PORT}/`)
-})
+if (process.env.IS_DEVELOPMENT) {
+    app.listen(LISTENING_PORT, () => {
+        console.log(`Server is listening on port ${LISTENING_PORT}`)
+        console.log(`http://localhost:${LISTENING_PORT}/`)
+    })
+} else {
+    server.listen(LISTENING_PORT, () => {
+        console.log(`Server is listening on port ${LISTENING_PORT}`)
+        console.log(`https://cloud.titilapierre.fr/`)
+    })
+}
