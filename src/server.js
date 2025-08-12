@@ -17,23 +17,18 @@ import dotenv from "dotenv"
 import {route_preview_get, route_preview_post} from "./api/preview.js"
 import fs from "fs";
 import * as https from "node:https";
+import * as http from "node:http";
 
 dotenv.config()
 
-const LISTENING_PORT = process.env.PORT
+const LISTENING_PORT = parseInt(process.env.PORT, 10) || 3000
+const IS_DEVELOPMENT = process.env.IS_DEVELOPMENT === "true"
+
+console.log(`Running in ${IS_DEVELOPMENT ? "development" : "production"} mode`)
 
 const app = express()
-let server
-
-if (process.env.IS_DEVELOPMENT) {
-    expressWs(app)
-} else {
-    server = https.createServer({
-        key: fs.readFileSync("/etc/letsencrypt/live/titilapierre.fr/privkey.pem"),
-        cert: fs.readFileSync("/etc/letsencrypt/live/titilapierre.fr/fullchain.pem"),
-    })
-    expressWs(app, server)
-}
+const server = http.createServer(app)
+expressWs(app, server)
 
 const database = mysql.createConnection({
     host: process.env.DATABASE_HOST,
@@ -75,14 +70,12 @@ app.post("/api/logout/", route_logout)
 app.all(["/api/*route", "/api/"], handleApi404)
 app.all("*path", handle404)
 
-if (process.env.IS_DEVELOPMENT) {
-    app.listen(LISTENING_PORT, () => {
-        console.log(`Server is listening on port ${LISTENING_PORT}`)
+
+server.listen(LISTENING_PORT, "127.0.0.1", () => {
+    console.log(`Server is listening on port ${LISTENING_PORT}`)
+    if (IS_DEVELOPMENT) {
         console.log(`http://localhost:${LISTENING_PORT}/`)
-    })
-} else {
-    server.listen(LISTENING_PORT, () => {
-        console.log(`Server is listening on port ${LISTENING_PORT}`)
+    } else {
         console.log(`https://cloud.titilapierre.fr/`)
-    })
-}
+    }
+})
