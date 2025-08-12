@@ -1,3 +1,5 @@
+import crypto from 'crypto'
+
 export async function route_prelogin(request, response) {
     const { database } = request
     const { username } = request.body

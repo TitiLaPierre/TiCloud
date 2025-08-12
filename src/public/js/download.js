@@ -1,5 +1,5 @@
 async function download_file(fileId) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve) => {
         const encryption_key_hex = localStorage.getItem("encryption_key")
 
         if (!encryption_key_hex) {

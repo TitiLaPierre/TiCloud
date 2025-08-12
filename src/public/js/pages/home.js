@@ -46,7 +46,7 @@ function update_upload_list() {
     if (uploadInput.files.length === 0) {
         uploadLabelIcon.classList.remove("icon__success")
         uploadLabelIcon.innerText = "cloud"
-        uploadLabelText.innerText = "Aucun transfert en cours"
+        uploadLabelText.innerText = "Aucun transfert"
     } else if (completedUploads === uploadInput.files.length) {
         uploadLabelIcon.classList.add("icon__success")
         uploadLabelIcon.innerText = "cloud_done"
@@ -62,25 +62,37 @@ function generate_file_preview(file) {
     const previewElement = document.createElement("div")
     previewElement.classList.add("file--preview")
 
+    let default_preview = true
+
     if (file.hasPreview) {
         if (file.preview) {
             previewElement.innerHTML = `<img src="${file.preview}" alt="${file.filename}">`
+            default_preview = false
         } else {
-            previewElement.innerHTML = `<span class="preview__loading material-symbols-rounded">progress_activity</span>`
-            new Promise(async (resolve, reject) => {
+            new Promise(async (resolve) => {
                 const preview = await get_preview(file.id)
                 if (preview && preview.data && preview.data.startsWith("data:image/")) {
                     file.preview = preview.data
                     previewElement.innerHTML = `<img src="${file.preview}" alt="${file.filename}">`
+                    default_preview = false
                     resolve()
                 } else {
                     file.hasPreview = false
-                    previewElement.innerHTML = `<span class="material-symbols-rounded">draft</span>`
                 }
             })
         }
-    } else {
-        previewElement.innerHTML = `<span class="material-symbols-rounded">draft</span>`
+    }
+    if (default_preview) {
+        let icon = "draft"
+        let color = "var(--black)"
+        for (let i = 0; i < FILE_ICONS_REGEX.length; i++) {
+            if (file.filename.match(FILE_ICONS_REGEX[i])) {
+                icon = FILE_ICONS_DATA[i].name
+                color = FILE_ICONS_DATA[i].color
+                break
+            }
+        }
+        previewElement.innerHTML = `<span class="material-symbols-rounded" style="color: ${color};">${icon}</span>`
     }
 
     return previewElement
@@ -150,17 +162,29 @@ document.addEventListener("DOMContentLoaded", function () {
     actionsMenu.openedFor = null
 })
 
+function toggle_actions_menu(open, x, y) {
+    if (open) {
+        const [width, height] = [actionsMenu.offsetWidth, actionsMenu.offsetHeight]
+        const [windowWidth, windowHeight] = [window.innerWidth, window.innerHeight]
+        if (x + width > windowWidth) x = windowWidth - width
+        if (y + height > windowHeight) y = windowHeight - height
+        actionsMenu.removeAttribute("style")
+        actionsMenu.style.left = `${x}px`
+        actionsMenu.style.top = `${y}px`
+    } else {
+        actionsMenu.setAttribute("style", "display: none;")
+    }
+}
+
 document.addEventListener("click", function (e) {
     const fileElement = e.target.closest(".file--actions")
     const fileId = fileElement?.closest(".file")?.getAttribute("data-file-id")
     if (fileElement && fileId && e.target.closest(".file--actions")) {
         actionsMenu.openedFor = fileId
-        actionsMenu.removeAttribute("style")
-        actionsMenu.style.left = `${e.pageX}px`
-        actionsMenu.style.top = `${e.pageY}px`
+        toggle_actions_menu(true, e.pageX, e.pageY)
     } else if (!e.target.closest("#actions") && actionsMenu.openedFor) {
         actionsMenu.openedFor = null
-        actionsMenu.setAttribute("style", "display: none;")
+        toggle_actions_menu(false)
     }
 })
 
@@ -169,12 +193,10 @@ document.addEventListener("contextmenu", function (e) {
     if (fileId) {
         e.preventDefault()
         actionsMenu.openedFor = fileId
-        actionsMenu.removeAttribute("style")
-        actionsMenu.style.left = `${e.pageX}px`
-        actionsMenu.style.top = `${e.pageY}px`
+        toggle_actions_menu(true, e.pageX, e.pageY)
     } else if (!e.target.closest("#actions") && actionsMenu.openedFor) {
         actionsMenu.openedFor = null
-        actionsMenu.setAttribute("style", "display: none;")
+        toggle_actions_menu(false)
     }
 })
 

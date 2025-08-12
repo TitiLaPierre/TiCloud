@@ -23,10 +23,6 @@ function bufferToHex(buffer) {
     return [...new Uint8Array(buffer)].map(b => b.toString(16).padStart(2, '0')).join('')
 }
 
-function bufferToText(buffer) {
-    return new TextDecoder().decode(buffer)
-}
-
 function incrementIV(iv) {
     for (let i = iv.length - 1; i >= 0; i--) {
         if (iv[i] < 255) {
@@ -71,4 +67,53 @@ const EXTERNAL_MESSAGES = {
     "ready_for_upload": "Le serveur est prêt à recevoir un fichier.",
     "files_fetched": "Fichiers ont été récupérés.",
     "file_deleted": "Le fichier a été supprimé.",
+}
+
+const FILE_ICONS_REGEX = [
+    // Image files
+    /\.(jpg|jpeg|jpe|jfif|pjpeg|pjp|png|apng|gif|webp|avif|heif|heic|bmp|dib|tif|tiff|svg|svgz|ico|cur|ani|raw|arw|cr2|cr3|nef|orf|rw2|dng|pef|sr2|raf|3fr|mef|mos|mrw|nrw|srw|x3f|bay|bpg|hdr|exr|jxr|wdp|tga)$/i,
+    // Video files
+    /\.(mp4|m4v|m4p|mov|qt|avi|wmv|asf|amv|flv|f4v|f4p|f4a|f4b|webm|mkv|mk3d|mka|mks|3gp|3g2|ogv|ogg|drc|mts|m2ts|ts|vob|rm|rmvb|yuv|divx|xvid|mpg|mpeg|mpv|m2v|mpe)$/i,
+    // Audio files
+    /\.(mp3|wav|wave|flac|alac|aac|m4a|m4b|m4p|m4r|aiff|aif|aifc|ogg|oga|opus|spx|amr|awb|wv|wma|ra|rm|mka|dsf|dff|mid|midi|kar|rmi|cda)$/i,
+    // PDF files
+    /\.(pdf)$/i,
+    // Archive & compressed files
+    /\.(zip|zipx|rar|r[0-9]{2}|7z|7zip|tar|gz|tgz|bz2|tbz|tbz2|xz|txz|lz|lzma|tlz|z|Z|iso|img|dmg|vhd|vhdx|vmdk|qcow|qcow2|squashfs|cab|arj|ace|lzh|lha|uue|xxe|bin|cue)$/i,
+    // Document files
+    /\.(doc|docx|docm|dot|dotx|dotm|odt|ott|rtf|wps|wpd)$/i,
+    /\.(xls|xlsx|xlsm|xlt|xltx|xltm|ods|ots|csv|tsv|dif|slk)$/i,
+    /\.(ppt|pptx|pptm|pps|ppsx|ppsm|pot|potx|potm|odp|otp)$/i,
+    // Code files
+    /\.(c|h|cpp|cc|cxx|hpp|hxx|ino|cs|java|class|jar|jsp|kt|kts|scala|py|pyw|pyc|pyo|ipynb|r|Rmd|rb|php|php3|php4|php5|phtml|pl|pm|t|lua|sh|bash|zsh|fish|bat|cmd|ps1|psm1|vbs|vb|asp|aspx|js|mjs|jsx|ts|tsx|html|htm|xhtml|xml|css|scss|sass|less|go|dart|swift|m|mm|hlsl|glsl|vert|frag|shader)$/i,
+    // Text files
+    /\.(txt|md|markdown|rst|adoc|asciidoc|log|nfo|info|readme|me|tex)$/i,
+    // Data files
+    /\.(json|jsonl|ndjson|xml|yaml|yml|toml|ini|cfg|conf|properties|db|sqlite|sqlite3|sql|parquet|avro|orc)$/i,
+    // Font files
+    /\.(ttf|otf|woff|woff2|eot|fon)$/i,
+    // Executable files
+    /\.(exe|msi|msix|app|apk|deb|rpm|pkg|dmg|run|bin|sh|bash|bat|cmd|com|elf|jar)$/i,
+    // 3D model files
+    /\.(stl|obj|mtl|fbx|dae|3ds|blend|ply|gltf|glb|iges|igs|step|stp)$/i,
+]
+const FILE_ICONS_DATA = [
+    { name: "image", color: "#27A3F5" },
+    { name: "videocam", color: "#D352FF"},
+    { name: "headphones", color: "#FAA611" },
+    { name: "picture_as_pdf", color: "#E03C31" },
+    { name: "archive", color: "#A67238" },
+    { name: "description", color: "#2B7BE5" },
+    { name: "table_view", color: "#5C9648" },
+    { name: "slide_library", color: "#2B7BE5" },
+    { name: "code", color: "#FF4F4F" },
+    { name: "text_fields", color: "#525252" },
+    { name: "code", color: "#FFF840" },
+    { name: "font_download", color: "#525252" },
+    { name: "sdk", color: "#525252" },
+    { name: "3d_rotation", color: "#27A3F5" },
+]
+
+if (FILE_ICONS_REGEX.length !== FILE_ICONS_DATA.length) {
+    throw new Error("FILE_ICONS_REGEX and FILE_ICONS_DATA must have the same length")
 }

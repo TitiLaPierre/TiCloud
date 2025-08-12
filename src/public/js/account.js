@@ -70,7 +70,7 @@ async function account_logout() {
 }
 
 async function get_files() {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve) => {
         const response = await fetch(SITE_URL+"/api/files/", { method: "GET" })
         const parsed = await response.json()
         const encryption_key_hex = localStorage.getItem("encryption_key")
@@ -111,7 +111,7 @@ async function delete_file(file_id) {
 }
 
 async function get_preview(file_id) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve) => {
         const encryption_key_hex = localStorage.getItem("encryption_key")
 
         if (!encryption_key_hex) {
@@ -148,7 +148,7 @@ async function get_preview(file_id) {
 }
 
 async function upload_preview(file_id, base64) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve) => {
         const encryption_key_hex = localStorage.getItem("encryption_key")
 
         if (!encryption_key_hex) {

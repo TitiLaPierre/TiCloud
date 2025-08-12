@@ -15,6 +15,7 @@ import {route_file_get, route_file_delete, route_files} from "./api/files.js"
 import {route_download} from "./api/download.js"
 import dotenv from "dotenv"
 import {route_preview_get, route_preview_post} from "./api/preview.js"
+import fs from "fs";
 
 dotenv.config()
 
@@ -33,13 +34,17 @@ const database = mysql.createConnection({
 database.queryFirst = database_single_query.bind(null, database)
 database.queryAll = database_multiple_query.bind(null, database)
 
-server.use(express.json({ limit: "150kb" }))
+server.use(express.json({ limit: "6mb" }))
 server.use(cookieParser())
 server.use(contextParser(database))
 
 server.use("/public", express.static("src/public"))
 server.use("/", express.static("src/external"))
 server.get(["/", "/account/"], route_html)
+// TODO: Remove the debug route
+server.get("/debug/", (request, response) => {
+    response.status(200).contentType("text/html").send(fs.readFileSync("src/html/debug.html", "utf8"))
+})
 
 server.ws("/api/upload/", route_upload)
 server.ws("/api/download/:fileId", route_download)

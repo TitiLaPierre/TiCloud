@@ -1,5 +1,5 @@
 async function upload_file(file, progressCallback) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve) => {
         let newFile = null
 
         const filename = file.name
