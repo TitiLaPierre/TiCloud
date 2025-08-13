@@ -27,8 +27,7 @@ const IS_DEVELOPMENT = process.env.IS_DEVELOPMENT === "true"
 console.log(`Running in ${IS_DEVELOPMENT ? "development" : "production"} mode`)
 
 const app = express()
-const server = http.createServer(app)
-expressWs(app, server)
+expressWs(app)
 
 const database = mysql.createConnection({
     host: process.env.DATABASE_HOST,
@@ -71,7 +70,7 @@ app.all(["/api/*route", "/api/"], handleApi404)
 app.all("*path", handle404)
 
 
-server.listen(LISTENING_PORT, "127.0.0.1", () => {
+app.listen(LISTENING_PORT, "127.0.0.1", () => {
     console.log(`Server is listening on port ${LISTENING_PORT}`)
     if (IS_DEVELOPMENT) {
         console.log(`http://localhost:${LISTENING_PORT}/`)

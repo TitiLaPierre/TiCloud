@@ -72,6 +72,7 @@ export async function route_file_delete(request, response) {
         fs.unlinkSync(`${UPLOAD_FOLDER}/${file.id}`)
     }
 
+    await database.queryFirst("UPDATE users SET used_space = used_space - ? WHERE id = ?", [file.size, user.id])
     await database.queryFirst("DELETE FROM files WHERE id = ?", [fileId])
     response.sendJSON(200, { success: true, message: "file_deleted" })
 }

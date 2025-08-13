@@ -242,6 +242,32 @@
 }
 .file:hover .file--actions { display: flex; }
 
+.file__loading .file--preview {
+    position: relative;
+    overflow: hidden;
+    background: var(--lightGray);
+}
+.file__loading .file--preview::after {
+    content: "";
+    position: absolute;
+    height: 100%;
+    top: 0;
+    rotate: 45deg;
+    box-shadow: 0 0 100px 35px var(--gray);
+    animation: loading 0.85s ease-in-out infinite;
+}
+
+@keyframes loading {
+    0% {
+        left: -100%;
+        right: 200%;
+    }
+    100% {
+        left: 200%;
+        right: -100%;
+    }
+}
+
 .actions {
     border: 1px solid var(--lightGray);
     position: absolute;

@@ -38,6 +38,7 @@ async function upload_file(file, progressCallback) {
             const response = JSON.parse(event.data)
             if (response.message === "ready_for_upload") {
                 console.info("Envoi du fichier en cours...")
+                const estimated_size = file.size + Math.ceil(file.size/CHUNK_SIZE)*AUTH_TAG_LENGTH
                 newFile = {
                     id: response.file_id,
                     iv: bufferToHex(iv),
@@ -45,10 +46,10 @@ async function upload_file(file, progressCallback) {
                     filename,
                     encrypted_filename: bufferToHex(encrypted_filename),
                     chunk_size: CHUNK_SIZE,
-                    size: file.size,
+                    size: estimated_size,
                     creation_date: new Date().getTime()/1000,
                 }
-                socket.send(JSON.stringify({ type: "start_upload", encrypted_filename: bufferToHex(encrypted_filename), iv: bufferToHex(iv), auth_tag_length: AUTH_TAG_LENGTH, chunk_size: CHUNK_SIZE, size: file.size }))
+                socket.send(JSON.stringify({ type: "start_upload", encrypted_filename: bufferToHex(encrypted_filename), iv: bufferToHex(iv), auth_tag_length: AUTH_TAG_LENGTH, chunk_size: CHUNK_SIZE, estimated_size }))
                 await sendChunks()
                 console.info("Fichier envoyé avec succès")
                 socket.send(JSON.stringify({ type: "end_upload" }))

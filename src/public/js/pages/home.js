@@ -112,6 +112,11 @@ function generate_file_label(file) {
 
 async function update_file_list(refetch) {
     if (files === null || refetch) {
+        fileList.innerHTML = `
+            <div class="file file__loading">
+                <div class="file--preview"></div>
+                <div class="file--label"></div>
+            </div>`.repeat(7)
         files = await get_files()
     }
     fileList.innerHTML = ""
