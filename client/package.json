@@ -1,0 +1,39 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "TitiLaPierre",
+  "type": "module",
+  "main": "server.js",
+  "proxy": "http://localhost:3001",
+  "imports": {
+    "~/*.js": "./src/*.js"
+  },
+  "scripts": {
+    "start": "craco start",
+    "build": "craco build"
+  },
+  "dependencies": {
+    "@craco/craco": "^7.1.0",
+    "axios": "^1.11.0",
+    "node": "^24.6.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-router-dom": "^7.8.0",
+    "react-scripts": "^5.0.1",
+    "streamsaver": "^2.0.6"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
