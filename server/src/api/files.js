@@ -1,6 +1,5 @@
 import fs from "fs"
-
-const UPLOAD_FOLDER = "uploads"
+import { UPLOAD_FOLDER } from "../utils/utils.js"
 
 export async function route_files(request, response) {
     const { database, session, user } = request
