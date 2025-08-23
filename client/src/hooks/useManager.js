@@ -14,7 +14,16 @@ export function useManager() {
         setFiles(oldFiles => oldFiles.filter(file => file.id !== id))
     }
 
-    const uploadManager = useUploadManager({ addLocalFile })
+    function setFilePreview(id, preview) {
+        setFiles(oldFiles => oldFiles.map(file => {
+            if (file.id === id) {
+                return { ...file, preview, hasPreview: true }
+            }
+            return file
+        }))
+    }
+
+    const uploadManager = useUploadManager({ addLocalFile, setFilePreview })
 
     useEffect(() => {
         const controller = new AbortController()

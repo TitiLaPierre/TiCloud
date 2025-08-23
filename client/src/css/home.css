@@ -184,6 +184,37 @@
     gap: 25px;
 }
 
+.empty {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 500px;
+    padding: 50px 20px;
+    background: var(--white);
+    border-radius: 10px;
+    cursor: pointer;
+    outline: var(--gray) 5px dashed;
+}
+.empty--icon {
+    color: var(--gray);
+    width: fit-content;
+    aspect-ratio: 1 / 1;
+    font-size: 56px;
+    border-radius: 10px;
+    transition-duration: .3s;
+}
+.empty--title {
+    text-transform: uppercase;
+    font-size: 14px;
+    color: var(--darkGray);
+    font-weight: 700;
+}
+.empty--text {
+    font-size: 12px;
+    color: var(--gray);
+}
+
 .file {
     max-width: 150px;
     display: flex;
@@ -210,6 +241,7 @@
         height: 100%;
         object-fit: cover;
         border-radius: 10px;
+        transition-duration: 0.3s;
     }
 }
 .file--label {

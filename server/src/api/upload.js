@@ -42,34 +42,34 @@ export async function route_upload(ws, request) {
             try {
                 data = JSON.parse(event.data)
             } catch (error) {
-                ws.send(JSON.stringify({ success: false, message: "invalid_request" }))
+                ws.send(JSON.stringify({success: false, message: "invalid_request"}))
                 resetUploadData()
-                ws.send(JSON.stringify({ success: true, message: "ready_for_upload", file_id: upload_data.id }))
+                ws.send(JSON.stringify({success: true, message: "ready_for_upload", file_id: upload_data.id}))
                 return
             }
             if (!data?.type) {
-                ws.send(JSON.stringify({ success: false, message: "invalid_request" }))
+                ws.send(JSON.stringify({success: false, message: "invalid_request"}))
                 resetUploadData()
-                ws.send(JSON.stringify({ success: true, message: "ready_for_upload", file_id: upload_data.id }))
+                ws.send(JSON.stringify({success: true, message: "ready_for_upload", file_id: upload_data.id}))
                 return
             }
             if (data.type === "start_upload") {
                 if (!data.encrypted_filename || !data.iv || !data.auth_tag_length || !data.chunk_size || !data.estimated_size) {
-                    ws.send(JSON.stringify({ success: false, message: "invalid_request" }))
+                    ws.send(JSON.stringify({success: false, message: "invalid_request"}))
                     resetUploadData()
-                    ws.send(JSON.stringify({ success: true, message: "ready_for_upload", file_id: upload_data.id }))
+                    ws.send(JSON.stringify({success: true, message: "ready_for_upload", file_id: upload_data.id}))
                     return
                 }
-                if (upload_data.estimated_size+user.used_space > user.allocated_space) {
-                    ws.send(JSON.stringify({ success: false, message: "quota_exceeded" }))
+                if (upload_data.estimated_size + user.used_space > user.allocated_space) {
+                    ws.send(JSON.stringify({success: false, message: "quota_exceeded"}))
                     resetUploadData()
-                    ws.send(JSON.stringify({ success: true, message: "ready_for_upload", file_id: upload_data.id }))
+                    ws.send(JSON.stringify({success: true, message: "ready_for_upload", file_id: upload_data.id}))
                     return
                 }
                 if (upload_data.received_headers) {
-                    ws.send(JSON.stringify({ success: false, message: "invalid_request" }))
+                    ws.send(JSON.stringify({success: false, message: "invalid_request"}))
                     resetUploadData()
-                    ws.send(JSON.stringify({ success: true, message: "ready_for_upload", file_id: upload_data.id }))
+                    ws.send(JSON.stringify({success: true, message: "ready_for_upload", file_id: upload_data.id}))
                     return
                 }
                 upload_data.received_headers = true
@@ -81,20 +81,20 @@ export async function route_upload(ws, request) {
                 return
             } else if (data.type === "end_upload") {
                 if (upload_data.stream === null) {
-                    ws.send(JSON.stringify({ success: false, message: "invalid_request" }))
+                    ws.send(JSON.stringify({success: false, message: "invalid_request"}))
                     resetUploadData()
-                    ws.send(JSON.stringify({ success: true, message: "ready_for_upload", file_id: upload_data.id }))
+                    ws.send(JSON.stringify({success: true, message: "ready_for_upload", file_id: upload_data.id}))
                     return
                 }
+                upload_data.is_completed = true
                 upload_data.stream.end(async () => {
                     const updated_user = await database.queryFirst("SELECT * FROM users WHERE id = ?", [user.id])
-                    if (upload_data.calculated_size+updated_user.used_space > updated_user.allocated_space) {
-                        ws.send(JSON.stringify({ success: false, message: "quota_exceeded" }))
+                    if (upload_data.calculated_size + updated_user.used_space > updated_user.allocated_space) {
+                        ws.send(JSON.stringify({success: false, message: "quota_exceeded"}))
                         resetUploadData()
-                        ws.send(JSON.stringify({ success: true, message: "ready_for_upload", file_id: upload_data.id }))
+                        ws.send(JSON.stringify({success: true, message: "ready_for_upload", file_id: upload_data.id}))
                         return
                     }
-                    upload_data.is_completed = true
                     await database.queryFirst("UPDATE users SET used_space = used_space + ? WHERE id = ?", [upload_data.calculated_size, user.id])
                     await database.queryFirst("INSERT INTO files (id, iv, auth_tag_length, chunk_size, size, encrypted_filename, user_id, creation_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [
                         upload_data.id,
@@ -104,15 +104,16 @@ export async function route_upload(ws, request) {
                         upload_data.calculated_size,
                         upload_data.encrypted_filename,
                         user.id,
-                        new Date().getTime()/1000,
+                        new Date().getTime() / 1000,
                     ])
 
                     const file = await database.queryFirst("SELECT * FROM files WHERE id = ?", [upload_data.id])
                     if (!file) {
                         deleteFile(upload_data.id)
                     }
+                    ws.send(JSON.stringify({success: true, message: "file_uploaded", file}))
                     resetUploadData()
-                    ws.send(JSON.stringify({ success: true, message: "ready_for_upload", file_id: upload_data.id }))
+                    ws.send(JSON.stringify({success: true, message: "ready_for_upload", file_id: upload_data.id}))
                 })
                 return
             }
@@ -132,7 +133,7 @@ export async function route_upload(ws, request) {
         })
     })
     ws.addEventListener("close", async () => {
-        if (!upload_data.is_completed) {
+        if (!upload_data.is_completed && upload_data.received_headers) {
             console.warn("Upload was not completed, deleting file")
             if (upload_data.stream !== null && !upload_data.stream.destroyed) {
                 upload_data.stream.close(() => deleteFile(upload_data.id))

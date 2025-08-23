@@ -5,7 +5,7 @@ export function Upload({ upload }) {
                 <span className="upload--icon material-symbols-rounded icon__success">cloud_done</span> :
                 <span className="upload--icon material-symbols-rounded">cloud_upload</span>
             }
-            <span className="upload--filename">{upload.file.name}</span>
+            <span className="upload--filename">{upload.file.name || upload.file.filename}</span>
         </h5>
         <div className="upload--bar">
             <div className="upload--progress" style={{ width: `${upload.uploaded ? 100 : (upload.progress || 0)}%` }}></div>

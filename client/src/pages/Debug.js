@@ -33,6 +33,6 @@ export function Debug() {
         <h1>Debug page</h1>
         <p>/!\ This page delete all your files /!\</p>
         <progress value={deleted} max={files ? files.length : 0} />
-        <p>Deleted {deleted/ (files?.length ?? 1)*100}% of files</p>
+        <p>Deleted {Math.round(deleted/ (files?.length ?? 1)*100)}% of files</p>
     </div>
 }

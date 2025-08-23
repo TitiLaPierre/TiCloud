@@ -38,9 +38,8 @@ export async function get_preview(file_id, signal) {
     }
 }
 
-export async function upload_preview(file_id, base64) {
+export async function upload_preview(file_id, base64, encryption_key_hex, endpoint_url) {
     try {
-        const encryption_key_hex = localStorage.getItem("encryption_key")
         if (!encryption_key_hex) {
             return { success: false, message: "authentication_required" }
         }
@@ -65,13 +64,14 @@ export async function upload_preview(file_id, base64) {
             new TextEncoder().encode(base64)
         )
 
-        const response = await axios.post(url(`/api/preview/${file_id}/`), { encrypted_data: bufferToHex(encrypted_base64), iv: bufferToHex(iv) })
+        const response = await axios.post(endpoint_url, { encrypted_data: bufferToHex(encrypted_base64), iv: bufferToHex(iv) })
         if (!response.data.success) {
             return { success: false, message: response.data.message }
         }
 
         return { success: true, message: "preview_uploaded" }
     } catch (error) {
+        console.error(error)
         return { success: false, message: "error_uploading_preview" }
     }
 }

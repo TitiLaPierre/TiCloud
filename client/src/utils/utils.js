@@ -2,7 +2,6 @@ export function url(path) {
     if (path.startsWith("/")) {
         path = path.substring(1)
     }
-    // return path.startsWith("api/") && process.env.NODE_ENV === "development" ? `http://localhost:3001/${path}` : `${window.location.origin}/${path}`
     return `${window.location.origin}/${path}`
 }
 

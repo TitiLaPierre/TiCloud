@@ -1,13 +1,12 @@
 import {AUTH_TAG_LENGTH, UPLOAD_CHUNK_SIZE} from "~/utils/utils.js"
 import {bufferToHex, hexToArrayBuffer, incrementIV} from "~/utils/encryption.js"
 
-export async function upload_file(socket, nextUploadId, file, setProgress) {
+export async function upload_file(socket, nextFileId, file, encryption_key_hex, setProgress) {
     try {
 
         let newFile = null
 
         const filename = file.name
-        const encryption_key_hex = localStorage.getItem("encryption_key")
         if (!encryption_key_hex) {
             return { success: false, message: "authentication_required" }
         }
@@ -34,7 +33,7 @@ export async function upload_file(socket, nextUploadId, file, setProgress) {
 
         const estimated_size = file.size + Math.ceil(file.size/UPLOAD_CHUNK_SIZE)*AUTH_TAG_LENGTH
         newFile = {
-            id: nextUploadId,
+            id: nextFileId,
             iv: bufferToHex(iv),
             auth_tag_length: AUTH_TAG_LENGTH,
             filename,

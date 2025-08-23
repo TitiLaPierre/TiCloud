@@ -2,7 +2,6 @@ import {Routes, Route, useNavigate} from "react-router-dom"
 
 import { Home } from "~/pages/Home"
 import { Account } from "~/pages/Account"
-import {useUploadManager} from "~/hooks/useUploadManager.js"
 import {useManager} from "~/hooks/useManager.js"
 import {Debug} from "~/pages/Debug.js"
 

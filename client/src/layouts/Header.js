@@ -1,13 +1,12 @@
 import {account_logout} from "~/services/account.js"
 import {useState} from "react"
-import {UploadManagerStatus} from "~/hooks/useUploadManager.js"
 import {Upload} from "~/components/Upload.js"
 
 function HeaderLabel({ uploadManager }) {
+    const uploadingCount = uploadManager.uploadQueue.length
     const uploadedCount = uploadManager.uploadedFiles.length
-    const totalCount = uploadManager.uploadQueue.length + uploadedCount
     return <label className="header--label" htmlFor="expandable--header">
-        {uploadManager.status === UploadManagerStatus.CLOSED ?
+        {uploadingCount === 0 ?
             (uploadedCount === 0 ?
                 <>
                     <span className="material-symbols-rounded">cloud</span>
@@ -15,11 +14,11 @@ function HeaderLabel({ uploadManager }) {
                 </> :
                 <>
                     <span className="material-symbols-rounded icon__success">cloud_done</span>
-                    <span id="upload--label--text">Fichiers transférés</span>
+                    <span id="upload--label--text">{uploadedCount} fichiers transférés</span>
                 </>) :
             <>
                 <span className="material-symbols-rounded">cloud</span>
-                <span id="upload--label--text">{uploadedCount}/{totalCount} fichiers transférés</span>
+                <span id="upload--label--text">{uploadedCount}/{uploadingCount+uploadedCount} fichiers transférés</span>
             </>}
     </label>
 }
@@ -29,7 +28,7 @@ export function Header({navigate, uploadManager}) {
 
     function handleUpload(e) {
         for (const inputedFile of e.target.files) {
-            uploadManager.addToUploadQueue(inputedFile)
+            uploadManager.uploadFile(inputedFile)
         }
         e.target.value = null
     }
@@ -67,8 +66,8 @@ export function Header({navigate, uploadManager}) {
             </div>
             {uploadManager.uploadQueue.length + uploadManager.uploadedFiles.length === 0 && <p className="header--label">Rien à afficher ici</p>}
             <div className="header--list">
-                {uploadManager.uploadQueue.map((upload) => <Upload upload={upload} key={upload.localId} />)}
-                {uploadManager.uploadedFiles.map((upload) => <Upload upload={upload} key={upload.localId} />)}
+                {uploadManager.uploadQueue.map((upload) => <Upload upload={upload} key={upload.uploadId} />)}
+                {uploadManager.uploadedFiles.map((upload) => <Upload upload={upload} key={upload.uploadId} />)}
              </div>
         </div>
         <label className="header--expand" htmlFor="expandable--header">

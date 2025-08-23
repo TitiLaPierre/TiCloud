@@ -1,97 +1,60 @@
-import {useEffect, useRef, useState} from "react"
-import {upload_file} from "~/services/upload.js"
+import {useEffect, useState} from "react"
 import {imageFileToThumbnail} from "~/utils/images.js"
-import {upload_preview} from "~/services/previews.js"
 
-export const UploadManagerStatus = {
-    CLOSED: "CLOSED",
-    INITIALIZING: "INITIALIZING",
-    OPEN: "OPEN",
-}
-
-export function useUploadManager({ addLocalFile }) {
-    const [websocket, setWebsocket] = useState(null)
-    const status = useRef(UploadManagerStatus.CLOSED)
+export function useUploadManager({ addLocalFile, setFilePreview }) {
+    const [worker, setWorker] = useState(null)
 
     const [uploadQueue, setUploadQueue] = useState([])
     const [uploadedFiles, setUploadedFiles] = useState([])
-    const [nextUploadId, setNextUploadId] = useState(null)
-
-    function openWebSocket() {
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-        const socket = new WebSocket(`${protocol}//${window.location.host}/api/upload/`)
-        socket.binaryType = "arraybuffer"
-
-        socket.addEventListener("open", () => {
-            console.info("WebSocket connection established")
-            status.current = UploadManagerStatus.INITIALIZING
-        })
-        socket.addEventListener("message", (e) => {
-            let response
-            try {
-                response = JSON.parse(e.data)
-            } catch (error) {
-                response = { message: "invalid_response", error: e.data }
-            }
-            if (response.message === "ready_for_upload") {
-                status.current = UploadManagerStatus.OPEN
-                setNextUploadId(response.file_id)
-            } else {
-                console.warn("Received unexpected message from file manager:", response)
-            }
-        })
-        socket.addEventListener("close", () => {
-            console.info("WebSocket connection terminated")
-            status.current = UploadManagerStatus.CLOSED
-            setWebsocket(null)
-        })
-
-        setWebsocket(socket)
-    }
-
-    function addToUploadQueue(file) {
-        const localId = crypto.randomUUID()
-        setUploadQueue(oldQueue => [...oldQueue, { localId, file, progress: 0, uploaded: false }])
-    }
 
     useEffect(() => {
-        if (websocket === null && uploadQueue.length > 0) {
-            openWebSocket()
-        } else if (websocket !== null && uploadQueue.length === 0) {
-            websocket.close()
-        }
-    }, [uploadQueue])
+        const w = new Worker(new URL("~/workers/upload.worker.js", import.meta.url))
+        setWorker(w)
 
-    useEffect(() => {
-        if (websocket === null || status.current !== UploadManagerStatus.OPEN || uploadQueue.length === 0) {
-            return
-        }
-        const upload = uploadQueue[0]
-        upload_file(websocket, nextUploadId, upload.file, (progress) => {
-            setUploadQueue(oldQueue => oldQueue.map((f, index) => {
-                if (index === 0) {
-                    return { ...f, progress }
-                }
-                return f
-            }))
-        }).then(async response => {
-            if (response.success) {
-                status.current = UploadManagerStatus.INITIALIZING
-                if (upload.file.type.startsWith("image/")) {
-                    const preview = await imageFileToThumbnail(upload.file)
-                    const previewResponse = await upload_preview(response.file.id, preview)
-                    if (previewResponse.success) {
-                        response.file.hasPreview = true
-                        response.file.preview = preview
+        w.addEventListener("message", (e) => {
+            const { type, data } = e.data
+            if (type === "file_uploaded") {
+                addLocalFile(data.file)
+                setUploadedFiles(oldFiles => [{ file: data.file, uploadId: data.uploadId, uploaded: true }, ...oldFiles])
+                setUploadQueue(oldQueue => oldQueue.filter(upload => upload.uploadId !== data.uploadId))
+            } else if (type === "upload_progress") {
+                setUploadQueue(oldQueue => oldQueue.map(f => {
+                    if (f.uploadId === data.uploadId) {
+                        return { ...f, progress: data.progress }
                     }
-                }
-                setUploadedFiles(oldFiles => [{ ...upload, uploaded: true }, ...oldFiles])
-                setUploadQueue(oldQueue => oldQueue.slice(1))
-                addLocalFile(response.file)
+                    return f
+                }))
+            } else if (type === "preview_uploaded") {
+                setFilePreview(data.fileId, data.preview)
+            } else if (type === "error") {
+                console.error(...data)
+            } else {
+                console.warn("Unknown message from upload worker:", e.data)
             }
         })
 
-    }, [websocket, nextUploadId])
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+        w.postMessage({ type: "init", config: {
+            http_protocol: window.location.protocol,
+            socket_protocol: protocol,
+            host: window.location.host,
+            encryption_key: localStorage.getItem("encryption_key"),
+        }})
 
-    return { status: status.current, addToUploadQueue, uploadQueue, uploadedFiles }
+        return () => w.terminate()
+    }, [])
+
+    async function uploadFile(file) {
+        const uploadId = crypto.randomUUID()
+        setUploadQueue(oldQueue => [{ file, progress: 0, uploadId }, ...oldQueue])
+
+        let preview = null
+        if (file.type.startsWith("image/")) {
+            preview = await imageFileToThumbnail(file)
+        }
+
+        worker.postMessage({ type: "upload_file", file, uploadId, preview })
+    }
+
+    return { uploadFile, uploadQueue, uploadedFiles }
 }

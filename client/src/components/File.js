@@ -1,9 +1,36 @@
 import {PREVIEW_ICONS} from "~/utils/utils.js"
+import {useState} from "react"
 
-export function LoadingFile() {
-    return <div className="file file__loading">
+function handleMenu(event, file, setMenuTarget) {
+    event.preventDefault()
+    event.stopPropagation()
+    setMenuTarget({ file, x: event.pageX, y: event.pageY })
+}
+
+export function LoadingFile({ file, setMenuTarget } = {}) {
+    return <div className="file file__loading" onContextMenu={(e) => file && handleMenu(e, file, setMenuTarget)}>
         <div className="file--preview"></div>
-        <div className="file--label"></div>
+        <div className="file--label">
+            {file && <span className="file--name">{file.filename}</span>}
+            {file && <button className="file--actions" onClick={(e) => handleMenu(e, file, setMenuTarget)}>
+                <span className="material-symbols-rounded">more_vert</span>
+            </button>}
+        </div>
+    </div>
+}
+
+export function ImageFile({ file, setMenuTarget }) {
+    const [isLoaded, setIsLoaded] = useState(false)
+    return <div className={isLoaded ? "file": "file file__loading"} onContextMenu={(e) => handleMenu(e, file, setMenuTarget)}>
+        <div className="file--preview">
+            <img className="file--image" src={file.preview} alt={file.filename} style={isLoaded ? { opacity: 1 } : { opacity: 0 }} onLoad={() => setIsLoaded(true)} />
+        </div>
+        <div className="file--label">
+            <span className="file--name">{file.filename}</span>
+            <button className="file--actions" onClick={(e) => handleMenu(e, file, setMenuTarget)}>
+                <span className="material-symbols-rounded">more_vert</span>
+            </button>
+        </div>
     </div>
 }
 
@@ -16,13 +43,15 @@ export function File({ file, setMenuTarget }) {
         }
     }
 
-    function handleMenu(event) {
-        event.preventDefault()
-        event.stopPropagation()
-        setMenuTarget({ file, x: event.pageX, y: event.pageY })
+    if (file.hasPreview && !file.preview) {
+        return <LoadingFile file={file} setMenuTarget={setMenuTarget} />
     }
 
-    return <div className="file" onContextMenu={handleMenu}>
+    if (file.preview && file.preview.startsWith("data:image/")) {
+        return <ImageFile file={file} setMenuTarget={setMenuTarget} />
+    }
+
+    return <div className="file" onContextMenu={(e) => handleMenu(e, file, setMenuTarget)}>
         <div className="file--preview">
             {file.preview ?
                 <img src={file.preview} alt={file.filename} /> :
@@ -31,7 +60,7 @@ export function File({ file, setMenuTarget }) {
         </div>
         <div className="file--label">
             <span className="file--name">{file.filename}</span>
-            <button className="file--actions" onClick={handleMenu}>
+            <button className="file--actions" onClick={(e) => handleMenu(e, file, setMenuTarget)}>
                 <span className="material-symbols-rounded">more_vert</span>
             </button>
         </div>
