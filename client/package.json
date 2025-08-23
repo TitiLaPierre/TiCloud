@@ -12,7 +12,7 @@
   },
   "scripts": {
     "start": "craco start",
-    "build": "craco build"
+    "build": "BUILD_PATH=../build craco build"
   },
   "dependencies": {
     "@craco/craco": "^7.1.0",
