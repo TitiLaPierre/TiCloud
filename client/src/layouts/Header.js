@@ -23,7 +23,7 @@ function HeaderLabel({ uploadManager }) {
     </label>
 }
 
-export function Header({navigate, uploadManager}) {
+export function Header({manager, uploadManager}) {
     const [isLoading, setIsLoading] = useState(false)
 
     function handleUpload(e) {
@@ -41,7 +41,7 @@ export function Header({navigate, uploadManager}) {
         setIsLoading(false)
 
         if (response.success) {
-            navigate("/account/")
+            manager.refreshSession()
         }
     }
 

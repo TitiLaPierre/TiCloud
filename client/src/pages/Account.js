@@ -4,7 +4,7 @@ import {getErrorMessage} from "~/utils/errors.js"
 import {account_login, account_register} from "~/services/account.js"
 import {useTitle} from "~/hooks/useTitle.js"
 
-export function Account({ navigate }) {
+export function Account({ manager }) {
     useTitle("Accès au compte — TiCloud")
 
     const [error, setError] = useState(null)
@@ -22,7 +22,7 @@ export function Account({ navigate }) {
         if (!response.success) {
             setError(response.message)
         } else {
-            navigate("/")
+            manager.refreshSession()
         }
     }
 
@@ -56,7 +56,7 @@ export function Account({ navigate }) {
             return
         }
 
-        navigate("/")
+        manager.refreshSession()
     }
 
     return <div className="form--container">

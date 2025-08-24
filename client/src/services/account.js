@@ -90,3 +90,12 @@ export async function account_logout() {
         return { success: false, message: error.response?.data?.message || "logout_failed" }
     }
 }
+
+export async function account_session(controller) {
+    try {
+        const sessionResponse = await axios.get(url("api/session/"), { signal: controller?.signal })
+        return sessionResponse.data
+    } catch (error) {
+        return { success: false, message: error.response?.data?.message || "session_failed" }
+    }
+}

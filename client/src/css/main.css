@@ -30,3 +30,31 @@ body {
 #root {
     height: 100%;
 }
+
+.loader--container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    gap: 50px;
+    user-select: none;
+}
+.loader {
+    border: 8px solid var(--lightGray);
+    border-top: 8px solid var(--black);
+    border-radius: 50%;
+    width: 64px;
+    height: 64px;
+    animation: spin 1s linear infinite;
+}
+.loader--text {
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--darkGray);
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

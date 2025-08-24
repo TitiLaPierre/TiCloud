@@ -2,8 +2,13 @@ import {useEffect, useState} from "react"
 import {get_preview} from "~/services/previews.js"
 import {get_files} from "~/services/files.js"
 import {useUploadManager} from "~/hooks/useUploadManager.js"
+import axios from "axios"
+import {account_session} from "~/services/account.js"
 
 export function useManager() {
+    const [user, setUser] = useState(null)
+    const [session, setSession] = useState(null)
+
     const [files, setFiles] = useState(null)
 
     function addLocalFile(file) {
@@ -23,7 +28,24 @@ export function useManager() {
         }))
     }
 
+    function refreshSession() {
+        const controller = new AbortController()
+        account_session(controller)
+            .then((response) => {
+                if (response.success) {
+                    setUser(response.user)
+                    setSession(response.session)
+                } else {
+                    setUser(null)
+                    setSession(false)
+                }
+            })
+        return () => controller.abort()
+    }
+
     const uploadManager = useUploadManager({ addLocalFile, setFilePreview })
+
+    useEffect(refreshSession, [])
 
     useEffect(() => {
         const controller = new AbortController()
@@ -72,5 +94,5 @@ export function useManager() {
         return () => controller.abort()
     }, [files])
 
-    return { files, addLocalFile, removeLocalFile, uploadManager }
+    return { user, session, files, addLocalFile, removeLocalFile, uploadManager, refreshSession }
 }

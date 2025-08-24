@@ -14,6 +14,7 @@ import {route_download} from "./api/download.js"
 import dotenv from "dotenv"
 import {route_preview_get, route_preview_post} from "./api/preview.js"
 import cors from "cors"
+import {route_session} from "./api/session.js"
 
 dotenv.config()
 
@@ -54,6 +55,7 @@ app.post("/api/prelogin/", route_prelogin)
 app.post("/api/login/", route_login)
 app.post("/api/register/", route_register)
 app.post("/api/logout/", route_logout)
+app.get("/api/session/", route_session)
 
 app.use(handleApi404)
 

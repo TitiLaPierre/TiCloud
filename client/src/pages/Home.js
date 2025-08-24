@@ -5,13 +5,13 @@ import {ActionMenu} from "~/layouts/ActionMenu.js"
 import {File, LoadingFile} from "~/components/File.js"
 import {useTitle} from "~/hooks/useTitle.js"
 
-export function Home({ navigate, manager }) {
+export function Home({ manager }) {
     useTitle("Mes fichiers — TiCloud")
 
     const [menuTarget, setMenuTarget] = useState(null)
 
     return <>
-        <Header navigate={navigate} uploadManager={manager.uploadManager} />
+        <Header manager={manager} uploadManager={manager.uploadManager} />
         <div className="page">
             <nav className="nav">
                 <h3 className="nav--title">Mes Fichiers</h3>
