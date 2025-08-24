@@ -1,4 +1,4 @@
-import {Routes, Route, useNavigate, Navigate} from "react-router-dom"
+import {Routes, Route, useNavigate, Navigate, useLocation} from "react-router-dom"
 
 import { Home } from "~/pages/Home"
 import { Account } from "~/pages/Account"
@@ -8,6 +8,7 @@ import {Loader} from "~/pages/Loader.js"
 import {comparePath} from "~/utils/utils.js"
 
 export function App() {
+    const location = useLocation()
     const manager =  useManager()
 
     const availableRoutes = [

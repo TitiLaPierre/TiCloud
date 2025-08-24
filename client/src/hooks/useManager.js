@@ -32,6 +32,7 @@ export function useManager() {
         const controller = new AbortController()
         account_session(controller)
             .then((response) => {
+                console.log(response)
                 if (response.success) {
                     setUser(response.user)
                     setSession(response.session)
