@@ -32,7 +32,6 @@ export function useManager() {
         const controller = new AbortController()
         account_session(controller)
             .then((response) => {
-                console.log(response)
                 if (response.success) {
                     setUser(response.user)
                     setSession(response.session)
@@ -59,7 +58,7 @@ export function useManager() {
                 setFiles(response.files)
             })
         return () => controller.abort()
-    }, [])
+    }, [session])
 
     useEffect(() => {
         if (files === null) return

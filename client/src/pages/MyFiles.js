@@ -1,11 +1,11 @@
-import "~/css/home.css"
+import "~/css/my-files.css"
 import { Header } from "~/layouts/Header.js"
 import {useState} from "react"
 import {ActionMenu} from "~/layouts/ActionMenu.js"
 import {File, LoadingFile} from "~/components/File.js"
 import {useTitle} from "~/hooks/useTitle.js"
 
-export function Home({ manager }) {
+export function MyFiles({ manager }) {
     useTitle("Mes fichiers — TiCloud")
 
     const [menuTarget, setMenuTarget] = useState(null)

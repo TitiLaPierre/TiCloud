@@ -1,7 +1,7 @@
 import {Routes, Route, useNavigate, Navigate, useLocation} from "react-router-dom"
 
-import { Home } from "~/pages/Home"
-import { Account } from "~/pages/Account"
+import { MyFiles } from "~/pages/MyFiles.js"
+import { RegisterAndLogin } from "~/pages/RegisterAndLogin.js"
 import {useManager} from "~/hooks/useManager.js"
 import {Debug} from "~/pages/Debug.js"
 import {Loader} from "~/pages/Loader.js"
@@ -14,16 +14,18 @@ export function App() {
     const availableRoutes = [
         { path: "*", Element: Loader, cond: manager.session === null },
 
-        { path: "/", Element: Home, cond: manager.session },
-        { path: "/", Element: Navigate, props: { to: "/account/" }, cond: manager.session === false },
+        { path: "/my-files/", Element: MyFiles, cond: manager.session },
+        { path: "/my-files/", Element: Navigate, props: { to: "/login/" }, cond: manager.session === false },
 
-        { path: "/account/", Element: Account, cond: manager.session === false },
-        { path: "/account/", Element: Navigate, props: { to: "/" }, cond: manager.session },
+        { path: "/login/", Element: RegisterAndLogin, cond: manager.session === false },
+        { path: "/register/", Element: RegisterAndLogin, cond: manager.session === false },
+        { path: "/login/", Element: Navigate, props: { to: "/my-files/" }, cond: manager.session },
+        { path: "/register/", Element: Navigate, props: { to: "/my-files/" }, cond: manager.session },
 
         { path: "/debug/", Element: Debug },
     ]
 
-    let choosenRoute = { path: "*", Element: Navigate, props: { to: "/" } }
+    let choosenRoute = { path: "*", Element: Navigate, props: { to: "/my-files/" } }
     let choosenRouteParams = {}
 
     for (const route of availableRoutes) {

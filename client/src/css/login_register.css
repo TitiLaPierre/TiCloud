@@ -5,18 +5,24 @@
     height: 100%;
 }
 
-.form {
+.form--scroll {
+    display: flex;
+    width: min(95%, 650px);
     background: var(--white);
+    box-shadow: var(--shadow);
+    overflow: hidden;
     border-radius: 15px;
+    scroll-behavior: smooth;
+}
+
+.form {
+    width: 100%;
+    height: 100%;
     padding: 50px 35px;
     display: flex;
     flex-direction: column;
     gap: 50px;
-    max-width: min(95%, 1000px);
-    min-width: min(650px, 95%);
-    max-height: 95%;
-    overflow: auto;
-    box-shadow: var(--shadow);
+    flex-shrink: 0;
 }
 
 .form--title {
@@ -57,11 +63,13 @@
 
 .form--actions {
     display: flex;
-    gap: 35px;
+    align-items: center;
+    flex-direction: column;
+    gap: 25px;
 }
 
 .form--button {
-    flex: 1;
+    width: 100%;
     padding: 15px 25px;
     border-radius: 5px;
     border: none;
@@ -76,6 +84,13 @@
 .form--button:disabled {
     cursor: not-allowed;
     opacity: 0.7;
+}
+
+.form--link {
+    color: var(--darkGray);
+    font-size: 14px;
+    text-decoration: none;
+    transition-duration: .3s;
 }
 
 .form--error {
