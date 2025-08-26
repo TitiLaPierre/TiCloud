@@ -37,6 +37,8 @@ const database = mysql.createConnection({
 database.queryFirst = database_single_query.bind(null, database)
 database.queryAll = database_multiple_query.bind(null, database)
 
+app.set("trust proxy", true)
+
 app.use(express.json({ limit: "6mb" }))
 app.use(cookieParser())
 app.use(contextParser(database))
