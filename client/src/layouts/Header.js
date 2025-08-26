@@ -1,6 +1,8 @@
 import {account_logout} from "~/services/account.js"
 import {useState} from "react"
 import {Upload} from "~/components/Upload.js"
+import "~/css/header.css"
+import {Link} from "react-router-dom"
 
 function HeaderLabel({ uploadManager }) {
     const uploadingCount = uploadManager.uploadQueue.length
@@ -23,26 +25,12 @@ function HeaderLabel({ uploadManager }) {
     </label>
 }
 
-export function Header({manager, uploadManager}) {
-    const [isLoading, setIsLoading] = useState(false)
-
+export function Header({ uploadManager }) {
     function handleUpload(e) {
         for (const inputedFile of e.target.files) {
             uploadManager.uploadFile(inputedFile)
         }
         e.target.value = null
-    }
-
-    async function handleLogout() {
-        if (isLoading) return
-
-        setIsLoading(true)
-        let response = await account_logout()
-        setIsLoading(false)
-
-        if (response.success) {
-            manager.refreshSession()
-        }
     }
 
     return <div className="header">
@@ -53,8 +41,8 @@ export function Header({manager, uploadManager}) {
                 <HeaderLabel uploadManager={uploadManager} />
             </div>
             <div className="header--links">
-                <label className="header--link" htmlFor="upload--input">Envoyer un fichier</label>
-                <button className="header--link" onClick={handleLogout}>Se déconnecter</button>
+                <Link className="header--link" to={"/my-files/"}>Mes fichiers</Link>
+                <Link className="header--link" to={"/account/"}>Mon compte</Link>
             </div>
         </div>
         <input type="checkbox" id="expandable--header" style={{ display: "none" }} />

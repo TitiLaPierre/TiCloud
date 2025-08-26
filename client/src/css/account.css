@@ -1,0 +1,164 @@
+.account {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 650px;
+}
+.account--split {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.account--section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--white);
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: var(--shadow);
+    min-width: 250px;
+}
+.section__large { gap: 35px; }
+.section__inline {
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+}
+.account--user {
+    display: flex;
+    align-items: center;
+    gap: 35px;
+}
+.account--avatar {
+    aspect-ratio: 1 / 1;
+    width: 72px;
+    background: var(--black);
+    border-radius: 999px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+}
+.account--avatar--letter {
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--white);
+    user-select: none;
+}
+.account--infos {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 5px;
+}
+.account--username {
+    font-size: 32px;
+    font-weight: 500;
+    color: var(--black);
+    user-select: none;
+    word-break: break-all;
+}
+.account--type {
+    font-size: 12px;
+    background: var(--lightGray);
+    width: fit-content;
+    padding: 5px 10px;
+    user-select: none;
+    border-radius: 999px;
+}
+.account--number {
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--black);
+    user-select: none;
+}
+.account--label {
+    font-size: 14px;
+    color: var(--darkGray);
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    & > .label__active {
+        color: var(--success);
+        font-weight: 600;
+    }
+    & > .label__separator {
+        width: 12px;
+        height: 1px;
+        background: var(--darkGray);
+        border-radius: 999px;
+    }
+}
+.account--title {
+    font-size: 32px;
+    font-weight: 500;
+    color: var(--black);
+    user-select: none;
+}
+.account--action {
+    width: fit-content;
+    padding: 10px 20px;
+    background: var(--lightGray);
+    color: var(--black);
+    font-weight: 600;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: 999px;
+    span {
+        color: inherit !important;
+    }
+}
+.account--icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--lightGray);
+    color: var(--darkGray);
+    width: 40px;
+    font-size: 28px;
+    aspect-ratio: 1 / 1;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+.account--field {
+    font-size: 14px;
+    color: var(--darkGray);
+    user-select: none;
+    word-break: break-all;
+}
+
+.progress {
+    width: 100%;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--lightGray);
+    user-select: none;
+    box-shadow: var(--shadow);
+}
+.progress--bar {
+    height: 100%;
+    min-width: 8px;
+    border-radius: 999px;
+    background: var(--black);
+    transition: width 0.3s;
+    position: relative;
+}
+.progress--text {
+    position: absolute;
+    right: 0;
+    translate: 50% 0;
+    bottom: 150%;
+    background: var(--lightGray);
+    color: var(--darkGray);
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 700;
+    box-shadow: var(--shadow);
+}

@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react"
 import {imageFileToThumbnail} from "~/utils/images.js"
 
-export function useUploadManager({ addLocalFile, setFilePreview }) {
+export function useUploadManager({ addLocalFile, setFilePreview, refreshSession }) {
     const [worker, setWorker] = useState(null)
 
     const [uploadQueue, setUploadQueue] = useState([])
@@ -17,6 +17,7 @@ export function useUploadManager({ addLocalFile, setFilePreview }) {
                 addLocalFile(data.file)
                 setUploadedFiles(oldFiles => [{ file: data.file, uploadId: data.uploadId, uploaded: true }, ...oldFiles])
                 setUploadQueue(oldQueue => oldQueue.filter(upload => upload.uploadId !== data.uploadId))
+                refreshSession()
             } else if (type === "upload_progress") {
                 setUploadQueue(oldQueue => oldQueue.map(f => {
                     if (f.uploadId === data.uploadId) {

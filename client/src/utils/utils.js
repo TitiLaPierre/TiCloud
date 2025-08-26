@@ -21,6 +21,15 @@ export function comparePath(route, pathname) {
     return { match: true, params }
 }
 
+export function formatBytes(bytes, decimals = 2) {
+    if (bytes < 0 || isNaN(bytes) || !isFinite(bytes) || typeof bytes !== 'number') return "—"
+    if (bytes === 0) return  "0 o"
+    const k = 1024
+    const symbols = ["o", "Ko", "Mo", "Go", "To"]
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + " " + symbols[i]
+}
+
 export const UPLOAD_CHUNK_SIZE = 1024*1024*5 // 5 Mo
 export const PREVIEW_MAX_BYTES = 1024*100 // 100 Ko
 export const PREVIEW_MAX_SIZE = 800

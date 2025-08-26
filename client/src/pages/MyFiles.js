@@ -11,11 +11,9 @@ export function MyFiles({ manager }) {
     const [menuTarget, setMenuTarget] = useState(null)
 
     return <>
-        <Header manager={manager} uploadManager={manager.uploadManager} />
+        <Header uploadManager={manager.uploadManager} />
         <div className="page">
-            <nav className="nav">
-                <h3 className="nav--title">Mes Fichiers</h3>
-            </nav>
+            <h3 className="page--title">Mes Fichiers</h3>
             {manager.files === null && <div className="files">
                 <LoadingFile /><LoadingFile /><LoadingFile /><LoadingFile /><LoadingFile /><LoadingFile /><LoadingFile />
             </div>}
@@ -28,6 +26,6 @@ export function MyFiles({ manager }) {
                 {manager.files.map(file => <File file={file} key={file.id} setMenuTarget={setMenuTarget} />)}
             </div>}
         </div>
-        {menuTarget && <ActionMenu {...menuTarget} setMenuTarget={setMenuTarget} removeLocalFile={manager.removeLocalFile} />}
+        {menuTarget && <ActionMenu {...menuTarget} setMenuTarget={setMenuTarget} removeLocalFile={manager.removeLocalFile} refreshSession={manager.refreshSession} />}
     </>
 }

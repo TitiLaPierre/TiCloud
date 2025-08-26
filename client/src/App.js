@@ -6,6 +6,7 @@ import {useManager} from "~/hooks/useManager.js"
 import {Debug} from "~/pages/Debug.js"
 import {Loader} from "~/pages/Loader.js"
 import {comparePath} from "~/utils/utils.js"
+import {Account} from "~/pages/Account.js"
 
 export function App() {
     const location = useLocation()
@@ -21,6 +22,9 @@ export function App() {
         { path: "/register/", Element: RegisterAndLogin, cond: manager.session === false },
         { path: "/login/", Element: Navigate, props: { to: "/my-files/" }, cond: manager.session },
         { path: "/register/", Element: Navigate, props: { to: "/my-files/" }, cond: manager.session },
+
+        { path: "/account/", Element: Account, cond: manager.session },
+        { path: "/account/", Element: Navigate, props: { to: "/login/" }, cond: manager.session === false },
 
         { path: "/debug/", Element: Debug },
     ]

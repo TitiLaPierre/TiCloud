@@ -43,7 +43,7 @@ export function useManager() {
         return () => controller.abort()
     }
 
-    const uploadManager = useUploadManager({ addLocalFile, setFilePreview })
+    const uploadManager = useUploadManager({ addLocalFile, setFilePreview, refreshSession })
 
     useEffect(refreshSession, [])
 
@@ -58,7 +58,7 @@ export function useManager() {
                 setFiles(response.files)
             })
         return () => controller.abort()
-    }, [session])
+    }, [session?.creation_date])
 
     useEffect(() => {
         if (files === null) return

@@ -99,3 +99,15 @@ export async function account_session(controller) {
         return { success: false, message: error.response?.data?.message || "session_failed" }
     }
 }
+
+export async function get_sessions(controller) {
+    try {
+        const sessionsResponse = await axios.get(url("api/sessions/"), { signal: controller?.signal })
+        if (!sessionsResponse.data.success) {
+            return { success: false, message: sessionsResponse.data.message || "get_sessions_failed" }
+        }
+        return sessionsResponse.data
+    } catch (error) {
+        return { success: false, message: error.response?.data?.message || "get_sessions_failed" }
+    }
+}

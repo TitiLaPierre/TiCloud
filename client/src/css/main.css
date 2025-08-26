@@ -54,6 +54,21 @@ body {
     color: var(--darkGray);
 }
 
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 35px;
+    padding: 35px;
+}
+.page--title {
+    font-weight: 500;
+    font-size: 48px;
+}
+.page--subtitle {
+    font-weight: 500;
+    font-size: 40px;
+}
+
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
