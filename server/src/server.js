@@ -27,11 +27,14 @@ console.log(`Running in ${IS_DEVELOPMENT ? "development" : "production"} mode`)
 const app = express()
 expressWs(app)
 
-const database = mysql.createConnection({
+const database = mysql.createPool({
     host: process.env.DATABASE_HOST,
     user: process.env.DATABASE_USER,
     password: process.env.DATABASE_PASSWORD,
     database: process.env.DATABASE_NAME,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
 })
 
 database.queryFirst = database_single_query.bind(null, database)
