@@ -42,7 +42,7 @@ export function Account(props) {
     const usedPercent = (Math.min(user.used_space, user.allocated_space) / user.allocated_space) * 100
     const letter = user.username.search(/\p{L}/u) !== -1 ? user.username.match(/\p{L}/u)[0].toUpperCase() : " "
 
-    return <>
+    return <div className="centered">
         <div className="account">
             <div className="account--section section__large">
                 <div className="account--user">
@@ -82,5 +82,5 @@ export function Account(props) {
         <div className="account">
             {sessions.map((session) => <Session session={session} key={session.creation_date} />)}
         </div>
-    </>
+    </div>
 }

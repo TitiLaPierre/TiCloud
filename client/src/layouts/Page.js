@@ -10,7 +10,7 @@ export function Page(props) {
 
     return <>
         <Header uploadManager={uploadManager} />
-        <div className="page page__centered">
+        <div className="page">
             {props.children}
             <Outlet />
         </div>
