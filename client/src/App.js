@@ -1,44 +1,46 @@
-import {Routes, Route, useNavigate, Navigate, useLocation} from "react-router-dom"
+import { Routes, Route, Navigate } from "react-router-dom"
 
 import { MyFiles } from "~/pages/MyFiles.js"
 import { RegisterAndLogin } from "~/pages/RegisterAndLogin.js"
-import {useManager} from "~/hooks/useManager.js"
-import {Debug} from "~/pages/Debug.js"
-import {Loader} from "~/pages/Loader.js"
-import {comparePath} from "~/utils/utils.js"
-import {Account} from "~/pages/Account.js"
+import { useManager } from "~/hooks/useManager.js"
+import { Debug } from "~/pages/Debug.js"
+import { Loader } from "~/pages/Loader.js"
+import { Account } from "~/pages/Account.js"
+import { Page } from "~/layouts/Page.js"
 
 export function App() {
-    const location = useLocation()
-    const manager =  useManager()
+    const manager = useManager()
 
-    const availableRoutes = [
-        { path: "*", Element: Loader, cond: manager.session === null },
-
-        { path: "/my-files/", Element: MyFiles, cond: manager.session },
-        { path: "/my-files/", Element: Navigate, props: { to: "/login/" }, cond: manager.session === false },
-
-        { path: "/login/", Element: RegisterAndLogin, cond: manager.session === false },
-        { path: "/register/", Element: RegisterAndLogin, cond: manager.session === false },
-        { path: "/login/", Element: Navigate, props: { to: "/my-files/" }, cond: manager.session },
-        { path: "/register/", Element: Navigate, props: { to: "/my-files/" }, cond: manager.session },
-
-        { path: "/account/", Element: Account, cond: manager.session },
-        { path: "/account/", Element: Navigate, props: { to: "/login/" }, cond: manager.session === false },
-
-        { path: "/debug/", Element: Debug },
-    ]
-
-    let choosenRoute = { path: "*", Element: Navigate, props: { to: "/my-files/" } }
-    let choosenRouteParams = {}
-
-    for (const route of availableRoutes) {
-        if (route.cond !== undefined && !route.cond) continue
-        const { match, params: routeParams } = comparePath(route.path, location.pathname)
-        if (!match) continue
-        [choosenRoute, choosenRouteParams] = [route, routeParams]
-        break
+    if (manager.session === null) {
+        return <Loader />
     }
 
-    return <choosenRoute.Element {...choosenRoute.props} manager={manager} />
+    function RequireAuth({ children }) {
+        return manager.session ? children : <Navigate to="/login/" replace />
+    }
+
+    function RequireNotAuth({ children }) {
+        return manager.session ? <Navigate to="/my-files/" replace /> : children
+    }
+
+    return (
+        <Routes>
+            {/* Layout commun protégé pour les pages authentifiées */}
+            <Route element={<RequireAuth><Page manager={manager} /></RequireAuth>}>
+                <Route path="my-files/" element={<MyFiles manager={manager} />} />
+                <Route path="account/" element={<Account manager={manager} />} />
+            </Route>
+
+            {/* Pages publiques */}
+            <Route path="/login/" element={<RequireNotAuth><RegisterAndLogin manager={manager} /></RequireNotAuth>} />
+            <Route path="/register/" element={<RequireNotAuth><RegisterAndLogin manager={manager} /></RequireNotAuth>} />
+
+            {/* Route de test (non protégée, laissée telle quelle) */}
+            <Route path="/test/" element={<Account manager={manager} />} />
+            <Route path="/debug/" element={<Debug />} />
+
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/my-files/" replace />} />
+        </Routes>
+    )
 }

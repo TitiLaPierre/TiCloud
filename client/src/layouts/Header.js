@@ -1,8 +1,7 @@
-import {account_logout} from "~/services/account.js"
-import {useState} from "react"
 import {Upload} from "~/components/Upload.js"
 import "~/css/header.css"
-import {Link} from "react-router-dom"
+import {Link, useLocation} from "react-router-dom"
+import {useEffect, useRef, useState} from "react"
 
 function HeaderLabel({ uploadManager }) {
     const uploadingCount = uploadManager.uploadQueue.length
@@ -33,6 +32,34 @@ export function Header({ uploadManager }) {
         e.target.value = null
     }
 
+    const links = [
+        { to: "/my-files/", label: "Mes fichiers" },
+        { to: "/account/", label: "Mon compte" },
+    ]
+
+    const location = useLocation()
+    const navRef = useRef(null)
+    const [bubbleStyle, setBubbleStyle] = useState({})
+
+    useEffect(() => {
+        if (!navRef.current) return
+
+        const activeLink = navRef.current.querySelector(`a[href^="${location.pathname}"]`)
+
+        if (activeLink) {
+            const rect = activeLink.getBoundingClientRect()
+            const navRect = navRef.current.getBoundingClientRect()
+
+            setBubbleStyle({
+                left: rect.left - navRect.left,
+                width: rect.width,
+                opacity: 1,
+            })
+        } else {
+            setBubbleStyle((prev) => ({ ...prev, opacity: 0 }))
+        }
+    }, [location])
+
     return <div className="header">
         <div className="header--content">
             <div className="header--group">
@@ -40,9 +67,16 @@ export function Header({ uploadManager }) {
                 <hr className="header--line"/>
                 <HeaderLabel uploadManager={uploadManager} />
             </div>
-            <div className="header--links">
-                <Link className="header--link" to={"/my-files/"}>Mes fichiers</Link>
-                <Link className="header--link" to={"/account/"}>Mon compte</Link>
+            <div className="header--links" ref={navRef}>
+                {links.map(({ to, label }) => {
+                    const isActive = location.pathname.startsWith(to)
+                    return <Link
+                        to={to}
+                        key={to}
+                        className={`header--link ${isActive ? "link__active" : ""}`}
+                    >{label}</Link>
+                })}
+                <div className="header--bubble" style={bubbleStyle} />
             </div>
         </div>
         <input type="checkbox" id="expandable--header" style={{ display: "none" }} />

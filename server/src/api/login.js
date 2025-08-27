@@ -24,7 +24,7 @@ export async function route_login(request, response) {
     const parser = new UAParser(request.headers["user-agent"])
     const result = parser.getResult()
 
-    const geo = await fetch(`https://ip-api.com/json/${ip}?fields=16401&lang=fr`).then(res => res.json()).catch(() => null)
+    const geo = await fetch(`http://ip-api.com/json/${ip}?fields=16401&lang=fr`).then(res => res.json()).catch(() => null)
 
     const sessionFields = [
         {name: "country", value: geo?.country || null},

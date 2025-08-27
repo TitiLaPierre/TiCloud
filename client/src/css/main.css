@@ -60,6 +60,11 @@ body {
     gap: 35px;
     padding: 35px;
 }
+.page__centered {
+    display: flex;
+    margin-inline: auto;
+    max-width: 650px;
+ }
 .page--title {
     font-weight: 500;
     font-size: 48px;

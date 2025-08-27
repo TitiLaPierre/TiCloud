@@ -32,7 +32,7 @@ export function ActionMenu({ file, x, y, setMenuTarget, removeLocalFile, refresh
     }
 
     async function handleDownload() {
-        const response = await download_file(file.id)
+        await download_file(file.id)
     }
 
     return <div className="actions" style={{ left: x, top: y }}>

@@ -5,22 +5,6 @@ export function url(path) {
     return `${window.location.origin}/${path}`
 }
 
-export const formatUrl = (str) => str.replace(/^\/|\/$/g, '').toLowerCase()
-
-export function comparePath(route, pathname) {
-    const [routeParts, pathnameParts] = [formatUrl(route).split("/"), formatUrl(pathname).split("/")]
-    if (formatUrl(route) === "*") return { match: true, params: {} }
-    if (routeParts.length !== pathnameParts.length) return { match: false }
-
-    const params = {}
-    for (let i = 0; i < routeParts.length; i++) {
-        if (routeParts[i] === "*") continue
-        else if (routeParts[i].startsWith(":")) params[routeParts[i].slice(1)] = pathnameParts[i]
-        else if (routeParts[i] !== pathnameParts[i]) return { match: false }
-    }
-    return { match: true, params }
-}
-
 export function formatBytes(bytes, decimals = 2) {
     if (bytes < 0 || isNaN(bytes) || !isFinite(bytes) || typeof bytes !== 'number') return "—"
     if (bytes === 0) return  "0 o"

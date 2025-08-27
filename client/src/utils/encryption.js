@@ -37,16 +37,6 @@ export async function hashMasterKey(masterKeyBytes) {
     return bufferToHex(new Uint8Array(digest))
 }
 
-export async function keyFromHex(hex) {
-    return await crypto.subtle.importKey(
-        "raw",
-        hexToArrayBuffer(hex),
-        { name: "AES-GCM" },
-        false,
-        ["encrypt", "decrypt"]
-    )
-}
-
 export function incrementIV(iv) {
     for (let i = iv.length - 1; i >= 0; i--) {
         if (iv[i] < 255) {

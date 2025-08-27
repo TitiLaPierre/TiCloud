@@ -176,11 +176,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
-    .header--label--text {
-        overflow: hidden;
-        max-width: 100%;
-        text-overflow: ellipsis;
-    }
+
     .header--links {
         width: 100%;
         gap: 15px;

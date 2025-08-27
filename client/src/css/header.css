@@ -48,7 +48,8 @@
 .header--links {
     display: flex;
     align-items: center;
-    gap: 50px;
+    gap: 25px;
+    position: relative;
 }
 .header--link {
     border: none;
@@ -57,6 +58,23 @@
     font-weight: 500;
     cursor: pointer;
     text-decoration: none;
+    z-index: 100;
+    transition-duration: .3s;
+    padding: 5px 15px;
+    border-radius: 999px;
+    position: relative;
+    &.link__active {
+        color: var(--white);
+    }
+}
+.header--bubble {
+    position: absolute;
+    background: var(--black);
+    border-radius: 999px;
+    transition-duration: 0.3s;
+    transition-timing-function: ease-out;
+    height: 100%;
+    z-index: 0;
 }
 .header--expand {
     border: none;
