@@ -1,5 +1,5 @@
 import axios from "axios"
-import { deriveMasterKey, hashMasterKey, bufferToHex, hexToArrayBuffer } from "~/utils/encryption.js"
+import {deriveMasterKey, hashMasterKey, bufferToHex, hexToArrayBuffer, EncryptionKey, IV} from "~/utils/encryption.js"
 import {url} from "~/utils/utils.js"
 
 export async function account_login(username, password) {
@@ -17,37 +17,23 @@ export async function account_login(username, password) {
         const { salt } = preLoginResponse.data
         const master_key_buffer = await deriveMasterKey(password, salt)
         const hashed_master_key = await hashMasterKey(master_key_buffer)
-        const master_key = await crypto.subtle.importKey(
-            "raw",
-            master_key_buffer,
-            { name: "AES-GCM" },
-            false,
-            ["decrypt"]
-        )
+
+        const master_key = await EncryptionKey.from(master_key_buffer)
 
         const loginResponse = await axios.post(url("api/login/"), { username, hashed_master_key })
         if (!loginResponse.data.success) {
             return { success: false, message: loginResponse.data.message || "login_failed" }
         }
 
-        const iv = hexToArrayBuffer(loginResponse.data.iv)
+        const iv = IV.from(loginResponse.data.iv)
         const tag = hexToArrayBuffer(loginResponse.data.tag)
         const encrypted = hexToArrayBuffer(loginResponse.data.encrypted_encryption_key)
 
-        const data = new Uint8Array([...new Uint8Array(encrypted), ...new Uint8Array(tag)])
+        const full_encrypted_key = new Uint8Array([...new Uint8Array(encrypted), ...new Uint8Array(tag)])
 
-        const decrypted = await crypto.subtle.decrypt(
-            {
-                name: "AES-GCM",
-                iv: iv,
-                tagLength: 128
-            },
-            master_key,
-            data
-        )
+        const encryption_key = await master_key.decryptAsHex(full_encrypted_key, iv)
+        localStorage.setItem("encryption_key", encryption_key)
 
-        const encryption_key = new Uint8Array(decrypted)
-        localStorage.setItem("encryption_key", bufferToHex(encryption_key))
         return { success: true, message: "logged_in" }
     } catch (error) {
         return { success: false, message: error.response?.data?.message || "login_failed" }

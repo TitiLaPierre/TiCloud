@@ -1,6 +1,6 @@
 import {url} from "~/utils/utils.js"
 import axios from "axios"
-import {hexToArrayBuffer} from "~/utils/encryption.js"
+import {EncryptionKey, hexToArrayBuffer, IV} from "~/utils/encryption.js"
 
 export async function get_files(abort) {
     try {
@@ -14,25 +14,11 @@ export async function get_files(abort) {
             return { success: false, message: response.data.message || "files_fetch_failed" }
         }
 
-        const encryption_key = await crypto.subtle.importKey(
-            "raw",
-            hexToArrayBuffer(encryption_key_hex),
-            { name: "AES-GCM" },
-            false,
-            ["decrypt"]
-        )
+        const encryption_key = await EncryptionKey.from(encryption_key_hex)
 
         for (const file of response.data.files) {
-            const iv = hexToArrayBuffer(file.iv)
-            const filename = await crypto.subtle.decrypt(
-                {
-                    name: "AES-GCM",
-                    iv: iv
-                },
-                encryption_key,
-                hexToArrayBuffer(file.encrypted_filename)
-            )
-            file.filename = new TextDecoder().decode(filename)
+            const iv = IV.from(file.iv)
+            file.filename = await encryption_key.decryptAsText(file.encrypted_filename, iv)
         }
 
         return { success: true, files: response.data.files }

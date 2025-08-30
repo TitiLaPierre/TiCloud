@@ -31,7 +31,7 @@ export async function route_upload(ws, request) {
             estimated_size: null,
             calculated_size: 0,
             encrypted_filename: null,
-            stream: fs.createWriteStream(`${UPLOAD_FOLDER}/${id}`, { flags: "a" }),
+            stream: null,
         }
     }
      resetUploadData()
@@ -80,7 +80,7 @@ export async function route_upload(ws, request) {
                 upload_data.encrypted_filename = data.encrypted_filename
                 return
             } else if (data.type === "end_upload") {
-                if (upload_data.stream === null) {
+                if (upload_data.stream === null || !upload_data.received_headers) {
                     ws.send(JSON.stringify({success: false, message: "invalid_request"}))
                     resetUploadData()
                     ws.send(JSON.stringify({success: true, message: "ready_for_upload", file_id: upload_data.id}))
@@ -117,11 +117,14 @@ export async function route_upload(ws, request) {
                 })
                 return
             }
-        } else if (upload_data.stream === null || !upload_data.received_headers) {
+        } else if (!upload_data.received_headers) {
             ws.send(JSON.stringify({ success: false, message: "invalid_request" }))
             resetUploadData()
             ws.send(JSON.stringify({ success: true, message: "ready_for_upload", file_id: upload_data.id }))
             return
+        }
+        if (upload_data.stream === null) {
+            upload_data.stream = fs.createWriteStream(`${UPLOAD_FOLDER}/${upload_data.id}`)
         }
         const buffer = Buffer.from(event.data)
         upload_data.calculated_size += buffer.length

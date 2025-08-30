@@ -1,22 +1,15 @@
-import {hexToArrayBuffer, incrementIV} from "~/utils/encryption.js"
+import {EncryptionKey, hexToUint8Array, incrementIV, IV} from "~/utils/encryption.js"
 import axios from "axios"
 import streamSaver from "streamsaver"
 
 export async function download_file(fileId) {
     try {
         const encryption_key_hex = localStorage.getItem("encryption_key")
-
         if (!encryption_key_hex) {
             return { success: false, message: "authentication_required" }
         }
 
-        const encryption_key = await crypto.subtle.importKey(
-            "raw",
-            hexToArrayBuffer(encryption_key_hex),
-            { name: "AES-GCM" },
-            false,
-            ["decrypt"]
-        )
+        const encryption_key = await EncryptionKey.from(encryption_key_hex)
 
         const fileDataResponse = await axios.get(`/api/files/${fileId}/`)
         if (!fileDataResponse.data.success) {
@@ -24,17 +17,8 @@ export async function download_file(fileId) {
         }
 
         const fileData = fileDataResponse.data.file
-
-        const iv = new Uint8Array(hexToArrayBuffer(fileData.iv))
-
-        const filename = new TextDecoder().decode(await crypto.subtle.decrypt(
-            {
-                name: "AES-GCM",
-                iv: iv
-            },
-            encryption_key,
-            hexToArrayBuffer(fileData.encrypted_filename)
-        ))
+        const iv = IV.from(fileData.iv)
+        const filename = await encryption_key.decryptAsText(fileData.encrypted_filename, iv)
 
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
         const socket = new WebSocket(`${protocol}//${window.location.host}/api/download/${fileId}/`)
@@ -44,16 +28,9 @@ export async function download_file(fileId) {
             start(controller) {
                 socket.addEventListener("message", async function (event) {
                     if (event.data instanceof ArrayBuffer) {
-                        incrementIV(iv)
-                        const decryptedData = await crypto.subtle.decrypt(
-                            {
-                                name: "AES-GCM",
-                                iv: iv,
-                            },
-                            encryption_key,
-                            event.data
-                        )
-                        controller.enqueue(new Uint8Array(decryptedData))
+                        iv.increment()
+                        const decryptedData = await encryption_key.decryptAsUint8Array(event.data, iv)
+                        controller.enqueue(decryptedData)
                     } else if (typeof event.data === "string") {
                         let data
                         try {
