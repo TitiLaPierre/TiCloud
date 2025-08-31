@@ -9,7 +9,7 @@ export async function route_files(request, response) {
         return
     }
 
-    const files = await database.queryAll("SELECT * FROM files WHERE user_id = ?", [user.id])
+    const files = await database.queryAll("SELECT * FROM files WHERE user_id = ? ORDER BY creation_date DESC", [user.id])
     const output = files.map(file => ({
         id: file.id,
         iv: file.iv,

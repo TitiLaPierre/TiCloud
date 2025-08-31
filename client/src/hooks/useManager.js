@@ -9,22 +9,24 @@ export function useManager() {
     const [session, setSession] = useState(null)
 
     const [files, setFiles] = useState(null)
+    const [previews, setPreviews] = useState({})
 
     function addLocalFile(file) {
         setFiles(old => (old ? [...old, file] : [file]))
+        setPreviews(old => ({ ...old, [file.id]: file.hasPreview ? null : false }))
     }
 
     function removeLocalFile(id) {
         setFiles(oldFiles => oldFiles.filter(file => file.id !== id))
+        setPreviews(old => {
+            const newPreviews = { ...old }
+            delete newPreviews[id]
+            return newPreviews
+        })
     }
 
     function setFilePreview(id, preview) {
-        setFiles(oldFiles => oldFiles.map(file => {
-            if (file.id === id) {
-                return { ...file, preview, hasPreview: true }
-            }
-            return file
-        }))
+        setPreviews(old => ({ ...old, [id]: preview }))
     }
 
     function refreshSession() {
@@ -64,27 +66,13 @@ export function useManager() {
 
         const controller = new AbortController()
         for (const file of files) {
-            if (file.hasPreview && !file.preview) {
+            if (file.hasPreview && !previews[file.id]) {
                 get_preview(file.id)
                     .then(response => {
                         if (response.success && response.data.startsWith("data:image/")) {
-                            setFiles(oldFiles => {
-                                return oldFiles.map(f => {
-                                    if (f.id === file.id) {
-                                        return {...f, preview: response.data }
-                                    }
-                                    return f
-                                })
-                            })
+                            setPreviews(old => ({ ...old, [file.id]: response.data }))
                         } else {
-                            setFiles(oldFiles => {
-                                return oldFiles.map(f => {
-                                    if (f.id === file.id) {
-                                        return {...f, hasPreview: false }
-                                    }
-                                    return f
-                                })
-                            })
+                            setPreviews(old => ({ ...old, [file.id]: false }))
                         }
                     })
             }
@@ -93,5 +81,5 @@ export function useManager() {
         return () => controller.abort()
     }, [files])
 
-    return { user, session, files, addLocalFile, removeLocalFile, uploadManager, refreshSession }
+    return { user, session, files, previews, addLocalFile, removeLocalFile, uploadManager, refreshSession }
 }

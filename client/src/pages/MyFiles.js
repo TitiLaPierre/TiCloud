@@ -21,7 +21,7 @@ export function MyFiles(props) {
             <p className="empty--text">Pour en ajouter, cliquez ici ou glissez-déposez vos fichiers.</p>
         </label>}
         {manager.files?.length > 0 && <div className="files">
-            {manager.files.map(file => <File file={file} key={file.id} setMenuTarget={setMenuTarget} />)}
+            {manager.files.map(file => <File file={file} key={file.id} preview={manager.previews[file.id]} setMenuTarget={setMenuTarget} />)}
         </div>}
         {menuTarget && <ActionMenu {...menuTarget} setMenuTarget={setMenuTarget} removeLocalFile={manager.removeLocalFile} refreshSession={manager.refreshSession} />}
     </>

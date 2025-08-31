@@ -39,7 +39,9 @@ export function Account(props) {
 
     useTitle("Mon compte — TiCloud")
 
-    const usedPercent = (Math.min(user.used_space, user.allocated_space) / user.allocated_space) * 100
+    const usedPercent = (user.allocated_space !== 0 ?
+        Math.min(user.used_space, user.allocated_space) * 100 / user.allocated_space :
+        100)
     const letter = user.username.search(/\p{L}/u) !== -1 ? user.username.match(/\p{L}/u)[0].toUpperCase() : " "
 
     return <div className="centered">

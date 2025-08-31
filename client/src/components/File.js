@@ -19,11 +19,11 @@ export function LoadingFile({ file, setMenuTarget } = {}) {
     </div>
 }
 
-export function ImageFile({ file, setMenuTarget }) {
+export function ImageFile({ file, preview, setMenuTarget }) {
     const [isLoaded, setIsLoaded] = useState(false)
     return <div className={isLoaded ? "file": "file file__loading"} onContextMenu={(e) => handleMenu(e, file, setMenuTarget)}>
         <div className="file--preview">
-            <img className="file--image" src={file.preview} alt={file.filename} style={isLoaded ? { opacity: 1 } : { opacity: 0 }} onLoad={() => setIsLoaded(true)} />
+            <img className="file--image" src={preview} alt={file.filename} style={isLoaded ? { opacity: 1 } : { opacity: 0 }} onLoad={() => setIsLoaded(true)} />
         </div>
         <div className="file--label">
             <span className="file--name">{file.filename}</span>
@@ -34,7 +34,7 @@ export function ImageFile({ file, setMenuTarget }) {
     </div>
 }
 
-export function File({ file, setMenuTarget }) {
+export function File({ file, preview, setMenuTarget }) {
     let previewIcon = { icon: "draft", color: "var(--black)" }
     for (const { regex, icon, color } of PREVIEW_ICONS) {
         if (file.filename.match(regex)) {
@@ -43,20 +43,17 @@ export function File({ file, setMenuTarget }) {
         }
     }
 
-    if (file.hasPreview && !file.preview) {
+    if (file.hasPreview && !preview) {
         return <LoadingFile file={file} setMenuTarget={setMenuTarget} />
     }
 
-    if (file.preview && file.preview.startsWith("data:image/")) {
-        return <ImageFile file={file} setMenuTarget={setMenuTarget} />
+    if (preview && preview.startsWith("data:image/")) {
+        return <ImageFile file={file} preview={preview} setMenuTarget={setMenuTarget} />
     }
 
     return <div className="file" onContextMenu={(e) => handleMenu(e, file, setMenuTarget)}>
         <div className="file--preview">
-            {file.preview ?
-                <img src={file.preview} alt={file.filename} /> :
-                <span className="material-symbols-rounded" style={{ color: previewIcon.color }}>{previewIcon.icon}</span>
-            }
+            <span className="material-symbols-rounded" style={{ color: previewIcon.color }}>{previewIcon.icon}</span>
         </div>
         <div className="file--label">
             <span className="file--name">{file.filename}</span>

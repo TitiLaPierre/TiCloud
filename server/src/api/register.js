@@ -55,15 +55,13 @@ export async function route_register(request, response) {
     const iv = crypto.randomBytes(12)
 
     const cipher = crypto.createCipheriv("aes-256-gcm", master_key, iv)
-    const encrypted_encryption_key = Buffer.concat([cipher.update(encryption_key), cipher.final()])
-    const tag = cipher.getAuthTag()
+    const encrypted_encryption_key = Buffer.concat([cipher.update(encryption_key), cipher.final(), cipher.getAuthTag()])
 
-    await request.database.queryFirst("INSERT INTO users (username, hashed_master_key, salt, encrypted_encryption_key, tag, iv, creation_date) VALUES (?, ?, ?, ?, ?, ?, ?)", [
+    await request.database.queryFirst("INSERT INTO users (username, hashed_master_key, salt, encrypted_encryption_key, iv, creation_date) VALUES (?, ?, ?, ?, ?, ?)", [
         username,
         hashed_master_key,
         salt.toString("hex"),
         encrypted_encryption_key.toString("hex"),
-        tag.toString("hex"),
         iv.toString("hex"),
         new Date().getTime()/1000,
     ])

@@ -66,6 +66,5 @@ export async function route_login(request, response) {
         message: "logged_in",
         encrypted_encryption_key: user.encrypted_encryption_key,
         iv: user.iv,
-        tag: user.tag
     })
 }

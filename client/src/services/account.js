@@ -26,12 +26,9 @@ export async function account_login(username, password) {
         }
 
         const iv = IV.from(loginResponse.data.iv)
-        const tag = hexToArrayBuffer(loginResponse.data.tag)
-        const encrypted = hexToArrayBuffer(loginResponse.data.encrypted_encryption_key)
+        const encrypted_encryption_key = hexToArrayBuffer(loginResponse.data.encrypted_encryption_key)
 
-        const full_encrypted_key = new Uint8Array([...new Uint8Array(encrypted), ...new Uint8Array(tag)])
-
-        const encryption_key = await master_key.decryptAsHex(full_encrypted_key, iv)
+        const encryption_key = await master_key.decryptAsHex(encrypted_encryption_key, iv)
         localStorage.setItem("encryption_key", encryption_key)
 
         return { success: true, message: "logged_in" }
