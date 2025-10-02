@@ -4,7 +4,6 @@
   "description": "",
   "license": "ISC",
   "author": "TitiLaPierre",
-  "proxy": "http://localhost:3001",
   "scripts": {
     "start": "vite",
     "build": "BUILD_PATH=../build vite build",

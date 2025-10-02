@@ -1,5 +1,5 @@
-import {upload_file} from "~/services/upload.js"
-import {upload_preview} from "~/services/previews.js"
+import {upload_file} from "@/services/upload.js"
+import {upload_preview} from "@/services/previews.js"
 
 let config = null
 let socket = null
@@ -9,6 +9,7 @@ let isUploading = false
 const queue = []
 const previewQueue = []
 let nextFilesId = []
+
 
 function url(path) {
     if (config === null) {

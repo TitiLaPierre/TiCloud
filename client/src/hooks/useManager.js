@@ -1,8 +1,8 @@
 import {useEffect, useState} from "react"
-import {get_preview} from "~/services/previews.js"
-import {get_files} from "~/services/files.js"
-import {useUploadManager} from "~/hooks/useUploadManager.js"
-import {account_session} from "~/services/account.js"
+import {get_preview} from "@/services/previews.js"
+import {get_files} from "@/services/files.js"
+import {useUploadManager} from "@/hooks/useUploadManager.js"
+import {account_session} from "@/services/account.js"
 
 export function useManager() {
     const [user, setUser] = useState(null)

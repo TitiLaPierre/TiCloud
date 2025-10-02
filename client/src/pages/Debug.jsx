@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react"
-import {delete_file, get_files} from "~/services/files.js"
+import {delete_file, get_files} from "@/services/files.js"
 
 export function Debug() {
     const [files, setFiles] = useState(null)

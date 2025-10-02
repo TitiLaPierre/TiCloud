@@ -1,8 +1,8 @@
-import "~/css/my-files.css"
+import "@/css/my-files.css"
 import {useState} from "react"
-import {ActionMenu} from "~/layouts/ActionMenu.js"
-import {File, LoadingFile} from "~/components/File.js"
-import {useTitle} from "~/hooks/useTitle.js"
+import {ActionMenu} from "@/layouts/ActionMenu.jsx"
+import {File, LoadingFile} from "@/components/File.jsx"
+import {useTitle} from "@/hooks/useTitle.js"
 
 export function MyFiles(props) {
     const { manager } = props

@@ -1,5 +1,5 @@
-import {useTitle} from "~/hooks/useTitle.js"
-import {Header} from "~/layouts/Header.js"
+import {useTitle} from "@/hooks/useTitle.js"
+import {Header} from "@/layouts/Header.jsx"
 import { Outlet } from "react-router-dom"
 
 export function Page(props) {

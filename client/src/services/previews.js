@@ -1,5 +1,5 @@
-import {AUTH_TAG_LENGTH, url} from "~/utils/utils.js"
-import {bufferToHex, EncryptionKey, hexToArrayBuffer, IV} from "~/utils/encryption.js"
+import {AUTH_TAG_LENGTH, url} from "@/utils/utils.js"
+import {bufferToHex, EncryptionKey, hexToArrayBuffer, IV} from "@/utils/encryption.js"
 import axios from "axios"
 
 export async function get_preview(file_id, signal) {

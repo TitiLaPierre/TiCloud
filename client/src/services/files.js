@@ -1,6 +1,6 @@
-import {url} from "~/utils/utils.js"
+import {url} from "@/utils/utils.js"
 import axios from "axios"
-import {EncryptionKey, hexToArrayBuffer, IV} from "~/utils/encryption.js"
+import {EncryptionKey, hexToArrayBuffer, IV} from "@/utils/encryption.js"
 
 export async function get_files(abort) {
     try {

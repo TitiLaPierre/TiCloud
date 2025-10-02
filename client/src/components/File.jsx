@@ -1,4 +1,4 @@
-import {PREVIEW_ICONS} from "~/utils/utils.js"
+import {PREVIEW_ICONS} from "@/utils/utils.js"
 import {useState} from "react"
 
 function handleMenu(event, file, setMenuTarget) {

@@ -1,5 +1,7 @@
 import {useEffect, useState} from "react"
-import {imageFileToThumbnail} from "~/utils/images.js"
+import {imageFileToThumbnail} from "@/utils/images.js"
+
+import UploadWorker from "@/workers/upload.worker.js?worker"
 
 export function useUploadManager({ addLocalFile, setFilePreview, refreshSession }) {
     const [worker, setWorker] = useState(null)
@@ -8,7 +10,8 @@ export function useUploadManager({ addLocalFile, setFilePreview, refreshSession 
     const [uploadedFiles, setUploadedFiles] = useState([])
 
     useEffect(() => {
-        const w = new Worker(new URL("~/workers/upload.worker.js", import.meta.url))
+        // const w = new Worker(new URL("@/workers/upload.worker.js", import.meta.url, { type: "module" }))
+        const w = new UploadWorker()
         setWorker(w)
 
         w.addEventListener("message", (e) => {

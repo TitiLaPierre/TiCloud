@@ -1,9 +1,9 @@
-import "~/css/account.css"
-import {useTitle} from "~/hooks/useTitle.js"
-import {formatBytes} from "~/utils/utils.js"
+import "@/css/account.css"
+import {useTitle} from "@/hooks/useTitle.js"
+import {formatBytes} from "@/utils/utils.js"
 import {useEffect, useState} from "react"
-import {account_logout, get_sessions} from "~/services/account.js"
-import {Session} from "~/components/Session.js"
+import {account_logout, get_sessions} from "@/services/account.js"
+import {Session} from "@/components/Session.jsx"
 
 export function Account(props) {
     const { manager } = props

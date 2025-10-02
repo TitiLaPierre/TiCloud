@@ -1,4 +1,4 @@
-import {EncryptionKey, hexToUint8Array, incrementIV, IV} from "~/utils/encryption.js"
+import {EncryptionKey, hexToUint8Array, incrementIV, IV} from "@/utils/encryption.js"
 import axios from "axios"
 import streamSaver from "streamsaver"
 

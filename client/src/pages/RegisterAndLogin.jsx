@@ -1,8 +1,8 @@
-import "~/css/login_register.css"
+import "@/css/login_register.css"
 import {useEffect, useRef, useState} from "react"
-import {getErrorMessage} from "~/utils/errors.js"
-import {account_login, account_register} from "~/services/account.js"
-import {useTitle} from "~/hooks/useTitle.js"
+import {getErrorMessage} from "@/utils/errors.js"
+import {account_login, account_register} from "@/services/account.js"
+import {useTitle} from "@/hooks/useTitle.js"
 import {Link, useLocation} from "react-router-dom"
 
 export function RegisterAndLogin({ manager }) {

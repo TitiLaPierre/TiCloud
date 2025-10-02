@@ -1,12 +1,12 @@
 import { Routes, Route, Navigate } from "react-router-dom"
 
-import { MyFiles } from "~/pages/MyFiles.js"
-import { RegisterAndLogin } from "~/pages/RegisterAndLogin.js"
-import { useManager } from "~/hooks/useManager.js"
-import { Debug } from "~/pages/Debug.js"
-import { Loader } from "~/pages/Loader.js"
-import { Account } from "~/pages/Account.js"
-import { Page } from "~/layouts/Page.js"
+import { MyFiles } from "@/pages/MyFiles.jsx"
+import { RegisterAndLogin } from "@/pages/RegisterAndLogin.jsx"
+import { useManager } from "@/hooks/useManager.js"
+import { Debug } from "@/pages/Debug.jsx"
+import { Loader } from "@/pages/Loader.jsx"
+import { Account } from "@/pages/Account.jsx"
+import { Page } from "@/layouts/Page.jsx"
 
 export function App() {
     const manager = useManager()

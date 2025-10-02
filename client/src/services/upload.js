@@ -1,5 +1,5 @@
-import {AUTH_TAG_LENGTH, UPLOAD_CHUNK_SIZE} from "~/utils/utils.js"
-import {bufferToHex, EncryptionKey, hexToArrayBuffer, incrementIV} from "~/utils/encryption.js"
+import {AUTH_TAG_LENGTH, UPLOAD_CHUNK_SIZE} from "@/utils/utils.js"
+import {bufferToHex, EncryptionKey, hexToArrayBuffer, incrementIV} from "@/utils/encryption.js"
 
 export async function upload_file(socket, nextFileId, file, encryption_key_hex, setProgress) {
     try {

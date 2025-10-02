@@ -1,5 +1,5 @@
-import {Upload} from "~/components/Upload.js"
-import "~/css/header.css"
+import {Upload} from "@/components/Upload.jsx"
+import "@/css/header.css"
 import {Link, useLocation} from "react-router-dom"
 import {useEffect, useRef, useState} from "react"
 

@@ -1,4 +1,4 @@
-import {useTitle} from "~/hooks/useTitle.js"
+import {useTitle} from "@/hooks/useTitle.js"
 
 export function Loader() {
     useTitle("TiCloud")

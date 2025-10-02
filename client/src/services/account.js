@@ -1,6 +1,6 @@
 import axios from "axios"
-import {deriveMasterKey, hashMasterKey, bufferToHex, hexToArrayBuffer, EncryptionKey, IV} from "~/utils/encryption.js"
-import {url} from "~/utils/utils.js"
+import {deriveMasterKey, hashMasterKey, bufferToHex, hexToArrayBuffer, EncryptionKey, IV} from "@/utils/encryption.js"
+import {url} from "@/utils/utils.js"
 
 export async function account_login(username, password) {
     try {

@@ -1,4 +1,4 @@
-import {PREVIEW_MAX_BYTES, PREVIEW_MAX_SIZE} from "~/utils/utils.js"
+import {PREVIEW_MAX_BYTES, PREVIEW_MAX_SIZE} from "@/utils/utils.js"
 
 export function loadImage(file) {
     return new Promise((resolve, reject) => {

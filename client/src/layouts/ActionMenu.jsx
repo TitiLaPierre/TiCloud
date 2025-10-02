@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react"
-import {delete_file} from "~/services/files.js"
-import {download_file} from "~/services/download.js"
+import {delete_file} from "@/services/files.js"
+import {download_file} from "@/services/download.js"
 
 export function ActionMenu({ file, x, y, setMenuTarget, removeLocalFile, refreshSession }) {
     const [loading, setIsLoading] = useState(false)

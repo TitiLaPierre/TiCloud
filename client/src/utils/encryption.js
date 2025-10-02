@@ -1,4 +1,4 @@
-import {AUTH_TAG_LENGTH} from "~/utils/utils.js"
+import {AUTH_TAG_LENGTH} from "@/utils/utils.js"
 
 export function hexToArrayBuffer(hex) {
     const typedArray = new Uint8Array(hex.length / 2)
