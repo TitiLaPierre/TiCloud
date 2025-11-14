@@ -3,7 +3,7 @@ import {imageFileToThumbnail} from "@/utils/images.js"
 
 import UploadWorker from "@/workers/upload.worker.js?worker"
 
-export function useUploadManager({ addLocalFile, setFilePreview, refreshSession }) {
+export function useUploadManager({ addLocalFile, refreshSession }) {
     const [worker, setWorker] = useState(null)
 
     const [uploadQueue, setUploadQueue] = useState([])
@@ -29,7 +29,7 @@ export function useUploadManager({ addLocalFile, setFilePreview, refreshSession 
                     return f
                 }))
             } else if (type === "preview_uploaded") {
-                setFilePreview(data.fileId, data.preview)
+                // setFilePreview(data.fileId, data.preview)
             } else if (type === "error") {
                 console.error(...data)
             } else {
