@@ -9,6 +9,8 @@ import { App } from "@/App"
 
 posthog.init(import.meta.env.VITE_POSTHOG_PROJECT_TOKEN, {
     api_host: import.meta.env.VITE_POSTHOG_HOST,
+    ui_host: "https://eu.posthog.com",
+    person_profiles: "identified_only",
     defaults: "2026-05-30",
 })
 
